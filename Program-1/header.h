@@ -14,11 +14,10 @@ void interface(int choice);
 void Menu_for_record();
 void interface_for_record(int choice);
 void files_info();
-
-// void choose(string* mark_ptr, int* serial_number_ptr, int* cathedra_ptr, int* terminals_ptr, int* storage_device_ptr);
+void Menu_for_cleaning();
+void interface_for_cleaning(int choice);
 void choose_1(string* mark_ptr, string* serial_number_ptr, string* cathedra_ptr);
 void choose_2(string* mark_ptr, string* terminals_ptr, string* storage_device_ptr);
-// void record();
 void record_1();
 void record_2();
 void Menu();

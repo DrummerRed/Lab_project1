@@ -36,11 +36,6 @@ void Menu()
         }
         if (ch == 10)
         {
-            if (switcher == 5)
-            {
-                endwin();
-                exit(0);}
-
             if (switcher == 1)
             {
                 Help();
@@ -49,9 +44,18 @@ void Menu()
             {
                 files_info();
             }
+            if (switcher == 3)
+            {
+                Menu_for_cleaning();
+            }
             if (switcher == 4)
             {
                 Menu_for_record();
+            }
+            if (switcher == 5)
+            {
+                endwin();
+                exit(0);
             }
         }
     }
@@ -598,4 +602,71 @@ string scan_cathedra()    //Функция, считывающая Заводс�
             return cathedra;
             }
         }
+}
+
+void Menu_for_cleaning()
+{
+    int switcher = 1;
+    while(true)
+    {    
+        clear();
+        interface_for_cleaning(switcher);
+        refresh();
+        int ch = getch();
+        if (ch == 258)
+        {
+            if (switcher != 3)
+                switcher += 1;
+            else
+                switcher = 1;
+        }
+        if (ch == 259)
+        {
+            if (switcher != 1)
+                switcher -= 1;
+            else
+                switcher = 3;
+        }
+        if (ch == 10)
+        {
+            if (switcher == 1)
+            {
+                //record_1();//
+            }
+            if (switcher == 2)
+            {
+                //record_2();//
+            }
+            if (switcher == 3)
+            {
+                //record_2();//
+            }
+        }
+        if (ch == 27)
+        {
+            break;
+        }
+    }
+}
+
+void interface_for_cleaning(int choice)
+{
+    printw("Чтобы вернуться в меню нажмите Esc \n\n");
+    printw("Выберите файлы для очистки:\n\n");
+    switch(choice)
+    {
+        case 1:
+        printw("<< Файл ЭВМ (%s) >>\nФайл конфигураций (%s)\nОчистить все файлы\n", ECM.c_str(), ECM_CONF.c_str());
+        // printw("\n\nОписание:\n");
+        // printw("Файл ЭВМ содержит информацию о марке ЭВМ, заводском номере и номере кафедры.\n");
+        break;
+        case 2:
+        printw("Файл ЭВМ (%s)\n<< Файл конфигураций (%s) >>\nОчистить все файлы\n", ECM.c_str(), ECM_CONF.c_str());
+        // printw("\n\nОписание:\n");
+        // printw("Файл конфигураций содержит информацию о количестве терминалов и количестве внешних запоминающих устройств ЭВМ.\n");
+        break;
+        case 3:
+        printw("Файл ЭВМ (%s)\nФайл конфигураций (%s)\n<< Очистить все файлы >>\n", ECM.c_str(), ECM_CONF.c_str());
+        break;
+    }
 }
