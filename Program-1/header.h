@@ -28,3 +28,8 @@ int serial_number_symb(string serial_number);
 string scan_serial_number();
 int cathedra_symb(string cathedra);
 string scan_cathedra();
+
+void Menu_are_you_sure_cleaning(string file_1, string file_2 = "");
+void are_you_sure_interface(int choice, string file_1, string file_2);
+void file_ECM_cleaning();
+void file_ECM_CONF_cleaning();

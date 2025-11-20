@@ -604,7 +604,7 @@ string scan_cathedra()    //Функция, считывающая Заводс�
         }
 }
 
-void Menu_for_cleaning()
+void Menu_for_cleaning()        //меню для выбора файла, которых желаем очистить
 {
     int switcher = 1;
     while(true)
@@ -631,15 +631,15 @@ void Menu_for_cleaning()
         {
             if (switcher == 1)
             {
-                //record_1();//
+                Menu_are_you_sure_cleaning(ECM.c_str());
             }
             if (switcher == 2)
             {
-                //record_2();//
+                Menu_are_you_sure_cleaning(ECM_CONF.c_str());
             }
             if (switcher == 3)
             {
-                //record_2();//
+                Menu_are_you_sure_cleaning(ECM.c_str(), ECM_CONF.c_str());
             }
         }
         if (ch == 27)
@@ -649,7 +649,7 @@ void Menu_for_cleaning()
     }
 }
 
-void interface_for_cleaning(int choice)
+void interface_for_cleaning(int choice)     //интерфейс для функции выбора и очистки файлов
 {
     printw("Чтобы вернуться в меню нажмите Esc \n\n");
     printw("Выберите файлы для очистки:\n\n");
@@ -669,4 +669,98 @@ void interface_for_cleaning(int choice)
         printw("Файл ЭВМ (%s)\nФайл конфигураций (%s)\n<< Очистить все файлы >>\n", ECM.c_str(), ECM_CONF.c_str());
         break;
     }
+}
+
+void Menu_are_you_sure_cleaning(string file_1, string file_2)
+{
+    int switcher = 1;
+    while(true)
+    {    
+        clear();
+        are_you_sure_interface(switcher, file_1.c_str(), file_2.c_str());
+        refresh();
+        int ch = getch();
+        if (ch == 258)
+        {
+            if (switcher == 2)
+                switcher = 1;
+            else
+                switcher = 2;
+        }
+        if (ch == 259)
+        {
+            if (switcher == 1)
+                switcher = 2;
+            else
+                switcher = 1;
+        }
+        if (ch == 10)
+        {
+            if (switcher == 1)
+            {   
+                if ((file_1 == ECM) && (file_2 == ""))
+                {
+                    file_ECM_cleaning();
+                    printw("Файл успешно очищен."); 
+                    refresh();
+                    sleep(2);
+                    break;
+                }
+                else if ((file_1 == ECM_CONF) && (file_2 == ""))
+                {
+                    file_ECM_CONF_cleaning();
+                    printw("Файл успешно очищен."); 
+                    refresh();
+                    sleep(2);
+                    break;
+                }
+                else if (file_2 != "")      //Если в параметрах введены 2 файла, то очищаем оба файла
+                {
+                    file_ECM_cleaning();
+                    file_ECM_CONF_cleaning();
+                    printw("Файлы успешно очищены.");
+                    refresh();
+                    sleep(2);
+                    break;
+                }
+            }
+            if (switcher == 2)
+            {
+                break;
+            }
+        }
+    }
+}
+
+void are_you_sure_interface(int choice, string file_1, string file_2)
+{
+    if (file_2 == "")
+    {
+        printw("Вы уверены? Содержимое файла %s будет удалено!\n\n", file_1.c_str());
+    }
+    else
+        printw("Вы уверены? Содержимое файлов %s и %s будет удалено!\n\n", file_1.c_str(), file_2.c_str());
+    switch(choice)
+    {
+        case 1:
+        printw("<< Да >>\nОтмена\n\n");
+        break;
+        case 2:
+        printw("Да\n<< Отмена >>\n\n");
+        break;
+    }
+}
+
+void file_ECM_cleaning()    //Функция для очистки первого файла (файла ЭВМ)
+{
+    FILE * new_file_1 = fopen(ECM.c_str(), "w");
+    fprintf(new_file_1, "Марка ЭВМ,Заводской номер,Номер кафедры\n");
+    fclose(new_file_1);
+}
+
+void file_ECM_CONF_cleaning()   //Функция для очистки второго файла (файл конфигураций)
+{
+    FILE * new_file_2 = fopen(ECM_CONF.c_str(), "w");
+    fprintf(new_file_2, "Марка ЭВМ,Количество терминалов,Количество внешних запоминающих устройств\n");
+    fclose(new_file_2);
 }
