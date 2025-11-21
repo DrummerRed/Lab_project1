@@ -369,82 +369,18 @@ void choose_2(string* mark_ptr, string* terminals_ptr, string* storage_device_pt
 {
     const int SIZE = 20;
     //char mark[SIZE] = "";
-    char terminals[SIZE] = "";
-    char storage_device[SIZE] = "";
+    //char terminals[SIZE] = "";
+    //char storage_device[SIZE] = "";
     char Nan = '=';
 
     printf("Введите:\n\n");   
     string mark = scan_mark();      //Считываем марку ЭВМ при помощи соответствующей функции
     printf("\n");
 
-    printf("Количество терминалов: ");
-    while(1)
-        {
-        char local_terminals[SIZE] = "";    //создаем локальную переменную для записи строки, чтобы не очищать исходную строку terminals
-        int i = 0;
-        bool invalid_symb = false;  // флаг для проверки на ввод неправильных символов
-        while((local_terminals[i] = getchar()) != '\n')
-            i++;
-        while ((local_terminals[0] == '\n') || (local_terminals[0] == ' '))
-            {
-            printf("Ошибка ввода! Введена пустая строка!\n");
-            printf("Количество терминалов: ");
-            i = 0;
-            while((local_terminals[i] = getchar()) != '\n')
-                i++;
-            }
-        for(int j=0; (local_terminals[j] != '\n'); j++)
-            {
-            if ((local_terminals[j] < '0') || (local_terminals[j] > '9'))
-                {
-                invalid_symb = true;
-                break;
-                }
-            }
-        if (invalid_symb == true)
-            {
-            printf("Ошибка ввода! Недопустимые символы! Введите целое число!\n");
-            printf("Количество терминалов: ");
-            }
-        else
-            {strcpy(terminals, local_terminals);    //копируем значение из локальной переменной в исходную
-            break;}
-        }    
+    string terminals = scan_terminals();
     printf("\n");
 
-    printf("Количество внешних запоминающих устройств: ");
-    while(1)
-        {
-        char local_storage_device[SIZE] = "";   //создаем локальную переменную для записи строки, чтобы не очищать исходную строку storage_device
-        int i = 0;
-        bool invalid_symb = false;  // флаг для проверки на ввод неправильных символов
-        while((local_storage_device[i] = getchar()) != '\n')
-            i++;
-        while ((local_storage_device[0] == '\n') || (local_storage_device[0] == ' '))
-            {
-            printf("Ошибка ввода! Введена пустая строка!\n");
-            printf("Количество внешних запоминающих устройств: ");
-            i = 0;
-            while((local_storage_device[i] = getchar()) != '\n')
-                i++;
-            }
-        for(int j=0; (local_storage_device[j] != '\n'); j++)
-            {
-            if ((local_storage_device[j] < '0') || (local_storage_device[j] > '9'))
-                {
-                invalid_symb = true;
-                break;
-                }
-            }
-        if (invalid_symb == true)
-            {
-            printf("Ошибка ввода! Недопустимые символы! Введите целое число!\n");
-            printf("Количество внешних запоминающих устройств: ");
-            }
-        else
-            {strcpy(storage_device, local_storage_device);    //копируем значение из локальной переменной в исходную
-            break;}
-        }    
+    string storage_device = scan_storage_device();
     printf("\n");
 
     ////////// записываем параметры для вывода в файл:
@@ -512,8 +448,11 @@ int serial_number_symb(string serial_number)      //Функция провер�
     string eng_high = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     string numbers = "0123456789";      //Можно добавить "-", но нужно обработать его ошибку как первый символ
     int invalid_symb = 1; 
+    if ((serial_number == "=") || (serial_number == "=\n"))       //проверка на ввод отсутствующей информации
+    {
+        return invalid_symb;
+    }
 
-    //int len = mark.length();
     for (int i=0; (serial_number[i] != '\n'); i++)
     {
         if ((eng_high.find(serial_number[i]) == -1) &&
@@ -561,8 +500,11 @@ int cathedra_symb(string cathedra)      //Функция проверки сим
     //string rus_low = "абвгдеёжзийклмнопрстуфхцчщъыьэюя";
     string numbers = "0123456789-";
     int invalid_symb = 1; 
+    if ((cathedra == "=") || (cathedra == "=\n"))       //проверка на ввод отсутствующей информации
+    {
+        return invalid_symb;
+    }
 
-    //int len = mark.length();
     for (int i=0; (cathedra[i] != '\n'); i++)
     {
         if ((rus_high.find(cathedra[i]) == -1) &&
@@ -600,6 +542,84 @@ string scan_cathedra()    //Функция, считывающая номер к
         else
             {
             return cathedra;
+            }
+        }
+}
+
+int terminals_and_storage_device_symb(string str)      //Функция проверки символов поля "количество терминалов" или "количество внешних устройств"
+{                               //Возвращает 1, если введены корректные символы. Иначе 0
+    string numbers = "0123456789";
+    int invalid_symb = 1; 
+    if ((str == "=") || (str == "=\n"))       //проверка на ввод отсутствующей информации
+    {
+        return invalid_symb;
+    }
+
+    for (int i=0; (str[i] != '\n'); i++)
+    {
+        if (numbers.find(str[i]) == -1)
+            {
+                invalid_symb = 0;
+                break;
+            }
+    }
+    return invalid_symb;
+}
+
+string scan_terminals()
+{
+    printf("Количество терминалов: ");
+    while(1)
+        {
+        char terminals[SIZE] = "";    //создаем локальную переменную для записи строки, чтобы не очищать исходную строку serial_number
+        int i = 0;
+        while((terminals[i] = getchar()) != '\n')
+            i++;
+        while ((terminals[0] == '\n') || (terminals[0] == ' '))
+            {
+            printf("Ошибка ввода! Введена пустая строка!\n");
+            printf("Количество терминалов: ");
+            i = 0;
+            while((terminals[i] = getchar()) != '\n')
+                i++;
+            }
+        if (terminals_and_storage_device_symb(terminals) == 0)
+            {
+            printf("Ошибка ввода! Недопустимые символы! Введите целое число!\n");
+            printf("Количество терминалов: ");
+            }
+        else
+            {
+            return terminals;
+            }
+        }
+}
+
+string scan_storage_device()
+{
+    printf("Количество внешних запоминающих устройств: ");
+    while(1)
+        {
+        char storage_device[SIZE] = "";    //создаем локальную переменную для записи строки, чтобы не очищать исходную строку serial_number
+        int i = 0;
+        while((storage_device[i] = getchar()) != '\n')
+            i++;
+        while ((storage_device[0] == '\n') || (storage_device[0] == ' '))
+            {
+            printf("Ошибка ввода! Введена пустая строка!\n");
+            printf("Количество внешних запоминающих устройств: ");
+            i = 0;
+            while((storage_device[i] = getchar()) != '\n')
+                i++;
+            }
+        if (terminals_and_storage_device_symb(storage_device) == 0)
+            {
+            printf("Ошибка ввода! Недопустимые символы! Введите целое число!\n");
+            printf("Количество внешних запоминающих устройств: ");
+            }
+        else
+            {
+            return storage_device;
             }
         }
 }
