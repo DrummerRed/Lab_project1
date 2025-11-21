@@ -279,6 +279,9 @@ void record_1()           // Запись первого файла
     string serial_number = "";
     string cathedra = ""; 
     choose_1(&mark, &serial_number, &cathedra);
+    serial_number = upper_symb(serial_number);                //преобразовываем буквы нижнего регистра в верхний
+    //cathedra = upper_symb(cathedra);                //преобразовываем буквы нижнего регистра в верхний
+    
     mark.erase(mark.find('\n'), 1);
     serial_number.erase(serial_number.find('\n'), 1);
     cathedra.erase(cathedra.find('\n'), 1);
@@ -350,7 +353,7 @@ void record_2()           // Запись второго файла (файл к
     string mark = "";       // создаем переменные, считываем их с консоли при помощи функции choose и записываем в файлы
     string terminals = "";
     string storage_device = "";
-    //int terminals, storage_device;
+    
     choose_2(&mark, &terminals, &storage_device);
     mark.erase(mark.find('\n'), 1);
     terminals.erase(terminals.find('\n'), 1);
@@ -446,6 +449,7 @@ string scan_mark()    //Функция, считывающая марку ЭВМ
 int serial_number_symb(string serial_number)      //Функция проверки символов поля Заводской номер
 {                               //Возвращает 1, если введены корректные символы. Иначе 0
     string eng_high = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    string eng_low = "abcdefghijklmnopqrstuvwxyz";
     string numbers = "0123456789";      //Можно добавить "-", но нужно обработать его ошибку как первый символ
     int invalid_symb = 1; 
     if ((serial_number == "=") || (serial_number == "=\n"))       //проверка на ввод отсутствующей информации
@@ -456,6 +460,7 @@ int serial_number_symb(string serial_number)      //Функция провер�
     for (int i=0; (serial_number[i] != '\n'); i++)
     {
         if ((eng_high.find(serial_number[i]) == -1) &&
+            (eng_low.find(serial_number[i]) == -1) &&
             (numbers.find(serial_number[i]) == -1))
             {
                 invalid_symb = 0;
@@ -497,7 +502,7 @@ string scan_serial_number()    //Функция, считывающая Заво
 int cathedra_symb(string cathedra)      //Функция проверки символов поля Кафедра
 {                               //Возвращает 1, если введены корректные символы. Иначе 0
     string rus_high = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧЩЭЮЯ";
-    //string rus_low = "абвгдеёжзийклмнопрстуфхцчщъыьэюя";
+    //string rus_low = "абвгдежзийклмнопрстуфхцчщэюя";
     string numbers = "0123456789-";
     int invalid_symb = 1; 
     if ((cathedra == "=") || (cathedra == "=\n"))       //проверка на ввод отсутствующей информации
@@ -783,4 +788,26 @@ void file_ECM_CONF_cleaning()   //Функция для очистки втор�
     FILE * new_file_2 = fopen(ECM_CONF.c_str(), "w");
     fprintf(new_file_2, "Марка ЭВМ,Количество терминалов,Количество внешних запоминающих устройств\n");
     fclose(new_file_2);
+}
+
+string upper_symb(string str)       //Функция для преобразования строчных букв в заглавные 
+{
+    // string rus_high = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧЩЭЮЯ";
+    // string rus_low = "абвгдежзийклмнопрстуфхцчщэюя";
+    string eng_low = "abcdefghijklmnopqrstuvwxyz";
+
+    for (int i=0; i<str.length(); i++)
+    {
+        // if (rus_low.find(str[i])!=-1)
+        // {
+        //     int pozition = rus_low.find(str[i]);
+        //     str[i] = rus_high[i];
+        // }
+        if (eng_low.find(str[i])!=-1)
+        {
+            char ch = str[i];
+            str[i] = toupper((unsigned char)ch);
+        }
+    }
+    return str;
 }
