@@ -55,6 +55,7 @@ void Menu()
             if (switcher == 5)
             {
                 endwin();
+                system("clear");
                 exit(0);
             }
         }
@@ -127,7 +128,8 @@ void Menu_for_record()
 
 void interface_for_record(int choice)
 {
-    printw("Чтобы вернуться в меню нажмите Esc \n\n");
+    printw("Чтобы вернуться в меню нажмите Esc \n");
+    printw("---------------------------------- \n\n");
     printw("Выберите файл для записи:\n\n");
     switch(choice)
     {
@@ -265,7 +267,7 @@ void record_1()           // Запись первого файла
         ch = getch();
         if ((int)ch == 27)
         {   
-            return;
+            return;         //досрочное завершение функции
         }
         if ((int)ch == 10)
         break;   
@@ -283,8 +285,31 @@ void record_1()           // Запись первого файла
     //cathedra = upper_symb(cathedra);                //преобразовываем буквы нижнего регистра в верхний
     
     mark.erase(mark.find('\n'), 1);
+    if (mark == "")
+        {
+        reset_prog_mode();
+        refresh();
+        system("clear");
+        break;
+        }
     serial_number.erase(serial_number.find('\n'), 1);
+    if (serial_number == "")
+        {
+        reset_prog_mode();
+        refresh();
+        system("clear");
+        fprintf(file_ECM, "%s,%s,%s\n", mark.c_str(), "=", "=");
+        break;
+        }
     cathedra.erase(cathedra.find('\n'), 1);
+    if (cathedra == "")
+        {
+        reset_prog_mode();
+        refresh();
+        system("clear");
+        fprintf(file_ECM, "%s,%s,%s\n", mark.c_str(), serial_number.c_str(), "=");
+        break;
+        }
     fprintf(file_ECM, "%s,%s,%s\n", mark.c_str(), serial_number.c_str(), cathedra.c_str());
 
     system("clear");
@@ -298,20 +323,40 @@ void record_1()           // Запись первого файла
 void choose_1(string* mark_ptr, string* serial_number_ptr, string* cathedra_ptr)
 {
     const int SIZE = 20;
-    //char mark[SIZE] = "";
-    //char serial_number[SIZE] = "";
-    //char cathedra[SIZE] = "";
-    char Nan = '=';
 
+    printf("(Для принудительного выхода зажмите сочетание клавиш \"Esc\"+\"Enter\")");
+    printf("\n");
+    printf("-------------------------------------------------------------------\n\n");
     printf("Введите:\n\n");
     string mark = scan_mark();      //Считываем марку ЭВМ при помощи соответствующей функции
     printf("\n");
+    if (mark == "\n")
+        {
+        *mark_ptr = "\n";
+        *serial_number_ptr = "\n";
+        *cathedra_ptr = "\n";
+        return;
+        }
 
     string serial_number = scan_serial_number();
     printf("\n");
+    if (serial_number == "\n")
+        {
+        *mark_ptr = mark;
+        *serial_number_ptr = "\n";
+        *cathedra_ptr = "\n";
+        return;
+        }
 
     string cathedra = scan_cathedra();      //Считываем Номер кафедры при помощи соответствующей функции
     printf("\n");
+    if (cathedra == "\n")
+        {
+        *mark_ptr = mark;
+        *serial_number_ptr = serial_number;
+        *cathedra_ptr = "\n";
+        return;
+        }
 
     ////////// записываем параметры для вывода в файл:
     *mark_ptr = mark;
@@ -353,11 +398,34 @@ void record_2()           // Запись второго файла (файл к
     string mark = "";       // создаем переменные, считываем их с консоли при помощи функции choose и записываем в файлы
     string terminals = "";
     string storage_device = "";
-    
     choose_2(&mark, &terminals, &storage_device);
+
     mark.erase(mark.find('\n'), 1);
+    if (mark == "")
+        {
+        reset_prog_mode();
+        refresh();
+        system("clear");
+        break;
+        }
     terminals.erase(terminals.find('\n'), 1);
+    if (terminals == "")
+        {
+        reset_prog_mode();
+        refresh();
+        system("clear");
+        fprintf(file_ECM_CONF, "%s,%s,%s\n", mark.c_str(), "=", "=");
+        break;
+        }
     storage_device.erase(storage_device.find('\n'), 1);
+    if (storage_device == "")
+        {
+        reset_prog_mode();
+        refresh();
+        system("clear");
+        fprintf(file_ECM_CONF, "%s,%s,%s\n", mark.c_str(), storage_device.c_str(), "=");
+        break;
+        }
     fprintf(file_ECM_CONF, "%s,%s,%s\n", mark.c_str(), terminals.c_str(), storage_device.c_str());
 
     system("clear");
@@ -371,20 +439,40 @@ void record_2()           // Запись второго файла (файл к
 void choose_2(string* mark_ptr, string* terminals_ptr, string* storage_device_ptr)
 {
     const int SIZE = 20;
-    //char mark[SIZE] = "";
-    //char terminals[SIZE] = "";
-    //char storage_device[SIZE] = "";
-    char Nan = '=';
 
+    printf("(Для принудительного выхода зажмите сочетание клавиш \"Esc\"+\"Enter\")");
+    printf("\n");
+    printf("-------------------------------------------------------------------\n\n");
     printf("Введите:\n\n");   
     string mark = scan_mark();      //Считываем марку ЭВМ при помощи соответствующей функции
     printf("\n");
+    if (mark == "\n")
+        {
+        *mark_ptr = "\n";
+        *terminals_ptr = "\n";
+        *storage_device_ptr = "\n";
+        return;
+        }
 
     string terminals = scan_terminals();
     printf("\n");
+    if (terminals == "\n")
+        {
+        *mark_ptr = mark;
+        *terminals_ptr = "\n";
+        *storage_device_ptr = "\n";
+        return;
+        }
 
     string storage_device = scan_storage_device();
     printf("\n");
+    if (storage_device == "\n")
+        {
+        *mark_ptr = mark;
+        *terminals_ptr = terminals;
+        *storage_device_ptr = "\n";
+        return;
+        }
 
     ////////// записываем параметры для вывода в файл:
     *mark_ptr = mark;
@@ -394,18 +482,18 @@ void choose_2(string* mark_ptr, string* terminals_ptr, string* storage_device_pt
 
 int mark_symb(string mark)      //Функция проверки символов поля Марка ЭВМ
 {                               //Возвращает 1, если введены корректные символы. Иначе 0
-    string rus_high = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧЩЪЫЬЭЮЯ";
-    string rus_low = "абвгдеёжзийклмнопрстуфхцчщъыьэюя";
+    // string rus_high = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧЩЪЫЬЭЮЯ";
+    // string rus_low = "абвгдеёжзийклмнопрстуфхцчщъыьэюя";
     string eng_high = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     string eng_low = "abcdefghijklmnopqrstuvwxyz";
     string numbers = "0123456789-. ";
     int invalid_symb = 1; 
-
+    mark += "\n";
     //int len = mark.length();
     for (int i=0; (mark[i] != '\n'); i++)
     {
-        if ((rus_high.find(mark[i]) == -1) &&
-            (rus_low.find(mark[i]) == -1) &&
+        if (//(rus_high.find(mark[i]) == -1) &&
+            //(rus_low.find(mark[i]) == -1) &&
             (eng_high.find(mark[i]) == -1) &&
             (eng_low.find(mark[i]) == -1) &&
             (numbers.find(mark[i]) == -1))
@@ -417,27 +505,49 @@ int mark_symb(string mark)      //Функция проверки символо
     return invalid_symb;
 }
 
-string scan_mark()    //Функция, считывающая марку ЭВМ
-{
-    printf("Марка ЭВМ: ");
-    while(1)
-        {
+string scan_mark()    //Функция, считывающая марку ЭВМ       //лУЧШИЙ ИЗ ИЗ РАССМОТРЕННЫХ ВАРИАНТОВ
+{                                                            // зАПИСЬ РАБОТТАЛА, УДАЛОСЬ РЕАЛИЗОВАТЬ ОГРАНИЧЕНИЕ НА СИМВОЛЫ
+    while(1)                                                 // ОДНАКО БЫЛА ПРОБЛЕМА С ТЕМ, ЧТО РУССКИХ И ЛАТИНСКИХ СИМВОЛОВ В СТРОКЕ ПОМЕЩАЛОСЬ РАЗНОЕ КОЛИЧЕСТВО 
+        {                                                    // РАЗНЫЙ РАЗМЕР ЛАТИНИЦЫ И КИРИЛЛИЦЫ, ТАКЖЕ НЕ ЯСНО КАК РЕАЛИЗОВАТЬ ВЫХОД (ESC) БЕЗ НАЖАТИЯ ENTER
+        bool error_flag = false; 
+        string checker = "";
         char local_mark[SIZE] = "";    //создаем локальную переменную для записи строки, чтобы не очищать исходную строку mark
+        //string local_mark;
         int i = 0;
+        printf("Марка ЭВМ: ");
         while((local_mark[i] = getchar()) != '\n')
+            {
+            checker+=local_mark;
             i++;
-        while ((local_mark[0] == '\n') || (local_mark[0] == ' '))
+            if (i == SIZE-1)
+                {
+                    error_flag = true;
+                    clear_buffer(&checker);
+                    break;
+                }
+            }
+
+        if (find_esc(checker) == 0)
+            {
+            return "\n";
+            }
+        //len(local_mark);       //удалить
+        if (mark_symb(local_mark) == 0)                            //Проверка на корректность символов
+            {
+            printf("Ошибка ввода! Недопустимые символы!\nНазвание может содержать только буквы латинского алфавита, а также цифры и символы \"-.\"!\n");
+            continue;
+            }
+
+        if (error_flag == true)         //Проверка на максимальную длину строки
+            {
+            printf("Ошибка ввода! Название не может быть больше %d символов!\n", SIZE-2);    
+            continue;
+            }
+
+        if ((local_mark[0] == '\n') || (local_mark[0] == ' '))      //проверка на пустую строку
             {
             printf("Ошибка ввода! Введена пустая строка!\n");
-            printf("Марка ЭВМ: ");
-            i = 0;
-            while((local_mark[i] = getchar()) != '\n')
-                i++;
-            }
-        if (mark_symb(local_mark) == 0)
-            {
-            printf("Ошибка ввода! Недопустимые символы!\n");
-            printf("Марка ЭВМ: ");
+            continue;
             }
         else
             {
@@ -452,6 +562,7 @@ int serial_number_symb(string serial_number)      //Функция провер�
     string eng_low = "abcdefghijklmnopqrstuvwxyz";
     string numbers = "0123456789";      //Можно добавить "-", но нужно обработать его ошибку как первый символ
     int invalid_symb = 1; 
+    serial_number += "\n";
     if ((serial_number == "=") || (serial_number == "=\n"))       //проверка на ввод отсутствующей информации
     {
         return invalid_symb;
@@ -502,9 +613,10 @@ string scan_serial_number()    //Функция, считывающая Заво
 int cathedra_symb(string cathedra)      //Функция проверки символов поля Кафедра
 {                               //Возвращает 1, если введены корректные символы. Иначе 0
     string rus_high = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧЩЭЮЯ";
-    //string rus_low = "абвгдежзийклмнопрстуфхцчщэюя";
+    string rus_low = "абвгдежзийклмнопрстуфхцчщэюя";
     string numbers = "0123456789-";
     int invalid_symb = 1; 
+    cathedra += "\n";
     if ((cathedra == "=") || (cathedra == "=\n"))       //проверка на ввод отсутствующей информации
     {
         return invalid_symb;
@@ -513,6 +625,7 @@ int cathedra_symb(string cathedra)      //Функция проверки сим
     for (int i=0; (cathedra[i] != '\n'); i++)
     {
         if ((rus_high.find(cathedra[i]) == -1) &&
+            (rus_low.find(cathedra[i]) == -1) &&
             (numbers.find(cathedra[i]) == -1))
             {
                 invalid_symb = 0;
@@ -541,7 +654,7 @@ string scan_cathedra()    //Функция, считывающая номер к
             }
         if (cathedra_symb(cathedra) == 0)
             {
-            printf("Ошибка ввода! Недопустимые символы!\nНомер может содержать только цифры и заглавные буквы русского алфавита!\n");
+            printf("Ошибка ввода! Недопустимые символы!\nНомер может содержать только цифры и буквы русского алфавита!\n");
             printf("Номер кафедры: ");
             }
         else
@@ -555,6 +668,7 @@ int terminals_and_storage_device_symb(string str)      //Функция пров
 {                               //Возвращает 1, если введены корректные символы. Иначе 0
     string numbers = "0123456789";
     int invalid_symb = 1; 
+    str += "\n";
     if ((str == "=") || (str == "=\n"))       //проверка на ввод отсутствующей информации
     {
         return invalid_symb;
@@ -676,7 +790,8 @@ void Menu_for_cleaning()        //меню для выбора файла, ко�
 
 void interface_for_cleaning(int choice)     //интерфейс для функции выбора и очистки файлов
 {
-    printw("Чтобы вернуться в меню нажмите Esc \n\n");
+    printw("Чтобы вернуться в меню нажмите Esc \n");
+    printw("---------------------------------- \n\n");
     printw("Выберите файлы для очистки:\n\n");
     switch(choice)
     {
@@ -810,4 +925,37 @@ string upper_symb(string str)       //Функция для преобразов
         }
     }
     return str;
+}
+
+void clear_buffer(string* buffer)
+{
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) 
+    {
+        if (buffer != nullptr)
+        {
+            *buffer += (char)c;  // Записываем символ в string
+        }
+    }
+}
+
+int find_esc(string mark)      //Функция проверки символа esc
+{                               //Возвращает 0, если esc найден. Иначе 1
+    int invalid_symb = 1; 
+    mark += "\n";
+    //int len = mark.length();
+    for (int i=0; (mark[i] != '\n'); i++)
+    {
+        if (mark[i] == 27)
+            {
+                invalid_symb = 0;
+                break;
+            }
+    }
+    return invalid_symb;
+}
+
+void len(string str)
+{
+    printf("%ld\n", str.length());
 }

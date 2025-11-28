@@ -38,3 +38,7 @@ void file_ECM_cleaning();
 void file_ECM_CONF_cleaning();
 
 string upper_symb(string str);
+void clear_buffer(string* buffer);
+int find_esc(string mark);
+
+void len(string str);   //удалить
