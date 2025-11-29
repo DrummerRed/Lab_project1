@@ -267,6 +267,7 @@ void record_1()           // Запись первого файла
         ch = getch();
         if ((int)ch == 27)
         {   
+            fclose(file_ECM);
             return;         //досрочное завершение функции
         }
         if ((int)ch == 10)
@@ -385,6 +386,7 @@ void record_2()           // Запись второго файла (файл к
         ch = getch();
         if ((int)ch == 27)
         {   
+            fclose(file_ECM_CONF);
             return;
         }
         if ((int)ch == 10)
@@ -582,26 +584,45 @@ int serial_number_symb(string serial_number)      //Функция провер�
 }
 
 string scan_serial_number()    //Функция, считывающая Заводской номер 
-{
-    printf("Заводской номер: ");
-    while(1)
-        {
-        char serial_number[SIZE] = "";    //создаем локальную переменную для записи строки, чтобы не очищать исходную строку serial_number
+{                                                            
+    while(1)                                                 
+        {                                                    
+        bool error_flag = false; 
+        string checker = "";
+        char serial_number[SIZE] = "";    //создаем локальную переменную для записи строки, чтобы не очищать исходную строку
+        //string serial_number;
         int i = 0;
+        printf("Заводской номер: ");
         while((serial_number[i] = getchar()) != '\n')
+            {
+            checker+=serial_number;
             i++;
-        while ((serial_number[0] == '\n') || (serial_number[0] == ' '))
+            if (i == SIZE-1)
+                {
+                    error_flag = true;
+                    clear_buffer(&checker);
+                    break;
+                }
+            }
+
+        if (find_esc(checker) == 0)
+            {
+            return "\n";
+            }
+        if (serial_number_symb(serial_number) == 0)                            //Проверка на корректность символов
+            {
+            printf("Ошибка ввода! Недопустимые символы!\nНомер может содержать только цифры и буквы латинского алфавита!\n");
+            continue;
+            }
+        if (error_flag == true)         //Проверка на максимальную длину строки
+            {
+            printf("Ошибка ввода! Номер не может содержать больше %d символов!\n", SIZE-2);    
+            continue;
+            }
+        if ((serial_number[0] == '\n') || (serial_number[0] == ' '))      //проверка на пустую строку
             {
             printf("Ошибка ввода! Введена пустая строка!\n");
-            printf("Заводской номер: ");
-            i = 0;
-            while((serial_number[i] = getchar()) != '\n')
-                i++;
-            }
-        if (serial_number_symb(serial_number) == 0)
-            {
-            printf("Ошибка ввода! Недопустимые символы!\nНомер может содержать только цифры и заглавные буквы латинского алфавита!\n");
-            printf("Заводской номер: ");
+            continue;
             }
         else
             {
@@ -636,26 +657,45 @@ int cathedra_symb(string cathedra)      //Функция проверки сим
 }
 
 string scan_cathedra()    //Функция, считывающая номер кафедры
-{
-    printf("Номер кафедры: ");
-    while(1)
-        {
-        char cathedra[SIZE] = "";    //создаем локальную переменную для записи строки, чтобы не очищать исходную строку serial_number
+{                                                            
+    while(1)                                                 
+        {                                                    
+        bool error_flag = false; 
+        string checker = "";
+        char cathedra[SIZE] = "";    //создаем локальную переменную для записи строки, чтобы не очищать исходную строку cathedra
+        //string cathedra;
         int i = 0;
+        printf("Номер кафедры: ");
         while((cathedra[i] = getchar()) != '\n')
-            i++;
-        while ((cathedra[0] == '\n') || (cathedra[0] == ' '))
             {
-            printf("Ошибка ввода! Введена пустая строка!\n");
-            printf("Номер кафедры: ");
-            i = 0;
-            while((cathedra[i] = getchar()) != '\n')
-                i++;
+            checker+=cathedra;
+            i++;
+            if (i == SIZE-1)
+                {
+                    error_flag = true;
+                    clear_buffer(&checker);
+                    break;
+                }
             }
-        if (cathedra_symb(cathedra) == 0)
+
+        if (find_esc(checker) == 0)
+            {
+            return "\n";
+            }
+        if (cathedra_symb(cathedra) == 0)       //Проверка на корректность символов
             {
             printf("Ошибка ввода! Недопустимые символы!\nНомер может содержать только цифры и буквы русского алфавита!\n");
-            printf("Номер кафедры: ");
+            continue;
+            }
+        if (error_flag == true)         //Проверка на максимальную длину строки
+            {
+            printf("Ошибка ввода! Номер не может содержать больше %d символов!\n", SIZE-2);    
+            continue;
+            }
+        if ((cathedra[0] == '\n') || (cathedra[0] == ' '))      //проверка на пустую строку
+            {
+            printf("Ошибка ввода! Введена пустая строка!\n");
+            continue;
             }
         else
             {
