@@ -632,10 +632,10 @@ string scan_serial_number()    //Функция, считывающая Заво
 }
 
 int cathedra_symb(string cathedra)      //Функция проверки символов поля Кафедра
-{                               //Возвращает 1, если введены корректные символы. Иначе 0
+{                                       //Возвращает 1, если введены корректные символы. Иначе 0
     string rus_high = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧЩЭЮЯ";
-    string rus_low = "абвгдежзийклмнопрстуфхцчщэюя";
-    string numbers = "0123456789-";
+    //string rus_low = "абвгдежзийклмнопрстуфхцчщэюя";
+    string numbers = "0123456789";
     int invalid_symb = 1; 
     cathedra += "\n";
     if ((cathedra == "=\n") || (cathedra == "=\n\n"))       //проверка на ввод отсутствующей информации
@@ -646,7 +646,7 @@ int cathedra_symb(string cathedra)      //Функция проверки сим
     for (int i=0; (cathedra[i] != '\n'); i++)
     {
         if ((rus_high.find(cathedra[i]) == -1) &&
-            (rus_low.find(cathedra[i]) == -1) &&
+            //(rus_low.find(cathedra[i]) == -1) &&
             (numbers.find(cathedra[i]) == -1))
             {
                 invalid_symb = 0;
@@ -656,11 +656,40 @@ int cathedra_symb(string cathedra)      //Функция проверки сим
     return invalid_symb;
 }
 
+int cathedra_symb_counter(string cathedra)      //Функция проверки количества символов поля Кафедра
+{                                               //Возвращает 1, если введены корректные символы. Иначе 0
+    string rus_high = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧЩЭЮЯ";
+    //string rus_low = "абвгдежзийклмнопрстуфхцчщэюя";
+    string numbers = "0123456789";
+    int invalid_symb = 1; 
+    cathedra += "\n";
+    if ((cathedra == "=\n") || (cathedra == "=\n\n"))       //проверка на ввод отсутствующей информации
+    {
+        return invalid_symb;
+    }
+    int numb_counter = 0;
+    int symb_counter = 0;
+    for (int i=0; (cathedra[i] != '\n'); i++)
+    {
+        if (rus_high.find(cathedra[i]) != -1)
+        {
+            symb_counter++;
+        }
+        else if (numbers.find(cathedra[i]) != -1)
+        {
+            numb_counter++;
+        }
+    }
+    if ((numb_counter>3) || (symb_counter>6))
+        invalid_symb = 0;
+    return invalid_symb;
+}
+
 string scan_cathedra()    //Функция, считывающая номер кафедры
 {                                                            
     while(1)                                                 
         {                                                    
-        bool error_flag = false; 
+        //bool error_flag = false; 
         string checker = "";
         char cathedra[SIZE] = "";    //создаем локальную переменную для записи строки, чтобы не очищать исходную строку cathedra
         //string cathedra;
@@ -672,7 +701,7 @@ string scan_cathedra()    //Функция, считывающая номер к
             i++;
             if (i == SIZE-1)
                 {
-                    error_flag = true;
+                    //error_flag = true;
                     clear_buffer(&checker);
                     break;
                 }
@@ -684,14 +713,19 @@ string scan_cathedra()    //Функция, считывающая номер к
             }
         if (cathedra_symb(cathedra) == 0)       //Проверка на корректность символов
             {
-            printf("Ошибка ввода! Недопустимые символы!\nНомер может содержать только цифры и буквы русского алфавита!\n");
+            printf("Ошибка ввода! Недопустимые символы!\nНомер может содержать только цифры и заглавные буквы русского алфавита!\n");
             continue;
             }
-        if (error_flag == true)         //Проверка на максимальную длину строки
+        if (cathedra_symb_counter(cathedra) == 0)
             {
-            printf("Ошибка ввода! Номер не может содержать больше %d символов!\n", SIZE-2);    
+            printf("Ошибка ввода! Номер не может содержать больше 3 численных и 3 буквенных символов!\n");    
             continue;
             }
+        // if (error_flag == true)         //Проверка на максимальную длину строки
+        //     {
+        //     printf("Ошибка ввода! Номер не может содержать больше %d символов!\n", SIZE-2);    
+        //     continue;
+        //     }
         if ((cathedra[0] == '\n') || (cathedra[0] == ' '))      //проверка на пустую строку
             {
             printf("Ошибка ввода! Введена пустая строка!\n");
