@@ -150,10 +150,8 @@ void interface_for_record(int choice)
 
 void Help()
 {
-    // Закомментированная часть предназначалась для вывода в исходную консоль, т.к. ncurses не хотел поддерживать кириллицу.
     def_prog_mode();   // Сохраняем режим ncurses
     endwin();          // Временно выключаем ncurses
-
     system("clear");
     char str;
     string duplicate_str = "";
@@ -168,22 +166,13 @@ void Help()
     while ((symb = fgetc(file)) != EOF) {
         str = (char)symb;
         duplicate_str += str;
-        // printf("%c", str);
     }
     fclose(file);
-    int ch = 0;
-    // printf("\n\nНажмите Esc для возврата в меню");
-    //refresh();
-    // while((int)ch != 27)
-    // {
-    //     ch = getchar();
-    // }
-    // system("clear");
     reset_prog_mode(); // Восстанавливаем режим
     clear();
     printw("%s", duplicate_str.c_str());
     refresh();
-    ch = 0;
+    int ch = 0;
     while((int)ch != 27)
     {
         ch = getch();
