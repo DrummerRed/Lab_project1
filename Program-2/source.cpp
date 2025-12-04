@@ -38,7 +38,7 @@ void Menu()
         {
             if (switcher == 1)
             {
-                //Help();
+                Help();
             }
             if (switcher == 2)
             {
@@ -75,5 +75,37 @@ void interface(int choice)
         case 4:
         printw(" \t\tПомощь\n \t\tПроверка файлов\n \t\tПросмотр записей\n \t\t<< Выход >>");
         break;
+    }
+}
+
+void Help()
+{
+    def_prog_mode();   // Сохраняем режим ncurses
+    endwin();          // Временно выключаем ncurses
+    system("clear");
+    char str;
+    string duplicate_str = "";
+    FILE * file = fopen(HELP.c_str(), "r");
+
+    if (file == NULL)
+    {
+        printf("Ошибка чтения файла!\n");
+        exit(0);
+    }
+    int symb;
+    while ((symb = fgetc(file)) != EOF) 
+    {
+        str = (char)symb;
+        duplicate_str += str;
+    }
+    fclose(file);
+    int ch = 0;
+    reset_prog_mode(); // Восстанавливаем режим
+    clear();
+    printw("%s", duplicate_str.c_str());
+    refresh();
+    while((int)ch != 27)
+    {
+        ch = getch();
     }
 }

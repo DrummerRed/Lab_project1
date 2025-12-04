@@ -11,3 +11,4 @@ using namespace std;
 
 void interface(int choice);
 void Menu();
+void Help();
