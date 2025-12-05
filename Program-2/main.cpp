@@ -1,6 +1,6 @@
 #include "header.h"
 
-int main()
+int main(int argc, char* argv[])
 {
     //setlocale(LC_ALL, "Rus");
     setenv("LANG", "ru_RU.UTF-8", 1);
@@ -8,7 +8,7 @@ int main()
     setlocale(LC_ALL, "ru_RU.UTF-8");
 
     //file_creater();     //Заменить на проверщик файлов
-    Menu();
+    Menu(argv);
 
     return 0;
 }
