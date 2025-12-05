@@ -14,3 +14,5 @@ void Help();
 void file_checker(bool* file_ECM_exist, bool* file_ECM_CONF_exist);
 void files_info(bool* files_ECM_exist, bool* file_ECM_CONF_exist, char* argv[]);
 void files_is_found();
+void Menu_for_viewing(bool* files_ECM_exist, bool* file_ECM_CONF_exist);
+void interface_for_viewing(int choice);

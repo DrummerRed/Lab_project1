@@ -49,12 +49,12 @@ void Menu(char* argv[])
             }
             if (switcher == 3)
             {
-                //Menu_for_record();
+                Menu_for_viewing(&files_ECM_exist, &file_ECM_CONF_exist);
             }
             if (switcher == 4)
             {
                 endwin();
-                //system("clear");
+                system("clear");
                 exit(0);
             }
         }
@@ -168,7 +168,7 @@ void files_info(bool* files_ECM_exist, bool* file_ECM_CONF_exist, char* argv[])
         else
         {       
             printw("Внимание! Файлы с информацией отсутствуют!\n");
-            printw("Добавьте требуемые файлы (%s, %s) в директорию:\n%s\n\n", ECM.c_str(), ECM_CONF.c_str(), dir_name.c_str());
+            printw("Добавьте требуемые файлы (%s, %s) в директорию:\t%s\n\n", ECM.c_str(), ECM_CONF.c_str(), dir_name.c_str());
             printw("После добавления перезапустите программу.");
         }
     }
@@ -179,7 +179,7 @@ void files_info(bool* files_ECM_exist, bool* file_ECM_CONF_exist, char* argv[])
         else
         {       
             printw("Внимание! Файл ЭВМ (%s) отсутствует!\n", ECM.c_str());
-            printw("Добавьте требуемый файл в директорию:\n%s\n\n", dir_name.c_str());
+            printw("Добавьте требуемый файл в директорию:\t%s\n\n", dir_name.c_str());
             printw("После добавления перезапустите программу.");
         }
     }
@@ -190,7 +190,7 @@ void files_info(bool* files_ECM_exist, bool* file_ECM_CONF_exist, char* argv[])
         else
         {       
             printw("Внимание! Файл конфигураций (%s) отсутствует!\n", ECM_CONF.c_str());
-            printw("Добавьте требуемый файл в директорию:\n%s\n\n", dir_name.c_str());
+            printw("Добавьте требуемый файл в директорию:\t%s\n\n", dir_name.c_str());
             printw("После добавления перезапустите программу.");
         }
     }
@@ -227,4 +227,82 @@ void files_is_found()
         }
     else
         printw("Ошибка чтения файла %s !\n", ECM_CONF.c_str());
+}
+
+void Menu_for_viewing(bool* files_ECM_exist, bool* file_ECM_CONF_exist)
+{
+    if ((*files_ECM_exist == false) || (*file_ECM_CONF_exist == false))
+        while(true)
+        {    
+            clear();
+            interface_for_viewing(3);
+            refresh();
+            int ch = getch();
+            if (ch == 27)
+                break;
+        }
+    else
+    {    
+        int switcher = 1;
+        while(true)
+        {    
+            clear();
+            interface_for_viewing(switcher);
+            refresh();
+            int ch = getch();
+            if (ch == 258)
+            {
+                if (switcher == 2)
+                    switcher = 1;
+                else
+                    switcher = 2;
+            }
+            if (ch == 259)
+            {
+                if (switcher == 1)
+                    switcher = 2;
+                else
+                    switcher = 1;
+            }
+            if (ch == 10)
+            {
+                if (switcher == 1)
+                {
+                    //record_1();
+                }
+                if (switcher == 2)
+                {
+                    //record_2();
+                }
+            }
+            if (ch == 27)
+                break;
+        }
+    }
+}
+
+void interface_for_viewing(int choice)
+{
+    printw("Чтобы вернуться в меню нажмите Esc \n");
+    printw("---------------------------------- \n\n");
+    switch(choice)
+    {
+        case 1:
+        printw("Выберите:\n\n");
+        printw("<< %s >>\n%s\n", "Просмотр записей", "Экспорт в файл"); 
+        printw("\n\nОписание:\n");
+        printw("Поиск информации по запросу.\n");
+        break;
+        case 2:
+        printw("Выберите:\n\n");
+        printw("%s\n<< %s >>\n", "Просмотр записей", "Экспорт в файл");
+        printw("\n\nОписание:\n");
+        printw("Запись всей информации в файл.\n");
+        break;
+        case 3:
+        printw("Внимание! Просмотр информации недоступен!\n");
+        printw("Некоторые считываемые файлы не были обнаружены.\n");
+        printw("Для исправления ошибки и получения большей информации перейдите в раздел \"Проверка файлов\".");
+        break;
+    }
 }
