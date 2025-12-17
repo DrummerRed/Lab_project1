@@ -149,7 +149,7 @@ void Help()                         // Функция работы пункта 
 
     if (file == NULL)
     {
-        printf("Ошибка чтения файла!\n");
+        printf("Ошибка 47: Не удалось считать файл инструкций!\n");
         exit(0);
     }
     int symb;
@@ -206,7 +206,7 @@ void files_info()               // Функция работы подпункт�
         printw("%s\n\n", absolute_path);
         }
     else
-        printw("Ошибка чтения файла %s !\n\n", ECM.c_str());
+        printw("Ошибка 15: Не удалось открыть файл %s !\n\n", ECM.c_str());
 
     if (realpath(ECM_CONF.c_str(), absolute_path))
         {
@@ -216,7 +216,7 @@ void files_info()               // Функция работы подпункт�
         printw("%s\n", absolute_path);
         }
     else
-        printw("Ошибка чтения файла %s !\n", ECM_CONF.c_str());
+        printw("Ошибка 15: Не удалось открыть файл %s !\n", ECM_CONF.c_str());
     refresh();
 
     int ch = 0;
@@ -228,13 +228,17 @@ void files_info()               // Функция работы подпункт�
 
 void record_1()                         // Функция записи первого файла (файл ЭВМ)
 {
-    FILE * file_ECM = fopen(ECM.c_str(), "a");
-    if (file_ECM == NULL)
+    FILE * error_file = fopen(ECM.c_str(), "r");      // Проверка наличия файла
+    if (error_file == NULL)
     {
-        printf("Ошибка открытия файла");
+        printf("Ошибка 15: Не удалось открыть файл! ");
         endwin();
         exit(0);                        // Завершение работы при возникновении ошибки
     }
+    else
+        fclose(error_file);
+
+    FILE * file_ECM = fopen(ECM.c_str(), "a");
 
     clear();
     printw("Чтобы вернуться нажмите Esc \n\n");
@@ -345,13 +349,17 @@ void choose_1(string* mark_ptr, string* serial_number_ptr, string* cathedra_ptr)
 
 void record_2()           // Функция записи второго файла (файл конфигураций)
 {
-    FILE * file_ECM_CONF = fopen(ECM_CONF.c_str(), "a");
-    if (file_ECM_CONF == NULL)
+    FILE * error_file = fopen(ECM_CONF.c_str(), "r");           // Проверка наличия файла
+    if (error_file == NULL)
     {
-        printf("Ошибка открытия файла");
+        printf("Ошибка 15: Не удалось открыть файл! ");
         endwin();
         exit(0);
     }
+    else
+        fclose(error_file);
+
+    FILE * file_ECM_CONF = fopen(ECM_CONF.c_str(), "a");
 
     clear();
     printw("Чтобы вернуться нажмите Esc \n\n");
