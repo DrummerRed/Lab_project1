@@ -11,18 +11,11 @@ struct cathedra_counts
     int count = 0;
 };
 
-struct data_from_ECM
+struct data_from_file
 {
     string mark;
-    string serial_number;
-    string cathedra;
-};
-
-struct data_from_ECM_CONF
-{
-    string mark;
-    string terminals;
-    string storage_device;
+    string field_1;             // serial_number (Файл эвм) или terminals (Файл конфигураций)
+    string field_2;             // cathedra (файл эвм) или storage_device (Файл конфигураций)
 };
 
 void Menu(char* argv[])
@@ -338,14 +331,16 @@ void file_viewer_to_screen()            // Режим вывода данных 
         return;                 // Завершение работы функции при ошибки считывания файлов
 
     const int COUNT_ECM = counter1 - 1;
-    data_from_ECM data_ECM[COUNT_ECM];      // Массив для записи всех полей файла ЭВМ       // Надо бы поменять название
-    ECM_reader(data_ECM, COUNT_ECM);
+    data_from_file data_ECM[COUNT_ECM];      // Массив для записи всех полей файла ЭВМ       // Надо бы поменять название
+    file_reader(data_ECM, COUNT_ECM, ECM);
 
     //test_func(data_ECM, COUNT_ECM);             // Тестовая функция для отладки
 
     const int COUNT_ECM_CONF = counter2 - 1;
-    data_from_ECM_CONF data_ECM_CONF[COUNT_ECM_CONF];
+    data_from_file data_ECM_CONF[COUNT_ECM_CONF];
+    file_reader(data_ECM_CONF, COUNT_ECM_CONF, ECM_CONF);
 
+    //test_func(data_ECM_CONF, COUNT_ECM_CONF);             // Тестовая функция для отладки
 
     //cathedra_counts array_of_cathedras[COUNT_ECM];      // Массив для определения количества машин на каждой кафедре P.S. мб он даже не понадобится
                                                         // Сделаем его в режиме вывода в файл. Здесь можно обойтись без него! 
@@ -390,13 +385,13 @@ bool files_warning(int counter, string filename)            // Предупре�
         return false;
 }
 
-void ECM_reader(data_from_ECM* data_ECM, int SIZE)      // Функция считывания файла ЭВМ
+void file_reader(data_from_file* array, int SIZE, string filename)      // Функция считывания файлов
 {                                                       // При считывании повторных записей возвращает пустую строку 
-    string line;
+    string line;                                        
     int len;
-    string mark, serial_number, cathedra;
+    string mark, field_1, field_2;
     ifstream file;
-    file.open(ECM);
+    file.open(filename);
     if (file.is_open())
     {
         for (int i=-1; getline(file, line); i++)
@@ -412,33 +407,43 @@ void ECM_reader(data_from_ECM* data_ECM, int SIZE)      // Функция счи
                 line = copy_line_1.erase(0, position_1 + 1);
                 int position_2 = line.find(",");
                 string copy_line_2 = line;
-                serial_number = line.erase(position_2);         // Выразили серийный номер
-                cathedra = copy_line_2.erase(0, position_2 + 1);       // Выразили номер кафедры
+                field_1 = line.erase(position_2);         // Выразили серийный номер
+                field_2 = copy_line_2.erase(0, position_2 + 1);       // Выразили номер кафедры
 
-                if (i > 0)
+                if ((i > 0) && (filename == ECM))
                 {
                     for (int j=0; j<i; j++)                     // Проверка на повторные записи в файле
                     {
-                        if ((data_ECM[j].mark == mark) &&                   
-                            (data_ECM[j].serial_number == serial_number) &&         // Нет смысла проверять только на серийный номер
-                            (data_ECM[j].cathedra == cathedra))                     // потому что: 1) во время записи человек мог посмотреть не на ту строку и ошибочно записать данные
+                        if ((array[j].mark == mark) &&                   
+                            (array[j].field_1 == field_1) &&         // Нет смысла проверять только на серийный номер
+                            (array[j].field_2 == field_2))                     // потому что: 1) во время записи человек мог посмотреть не на ту строку и ошибочно записать данные
                         {                                                           // при этом перезаписав данные мы точно не сможем узнать, были они перезаписаны верно или ошибочно (перезаписали вместо правильной)            
                             repeat_flag = true;                                     // проще позвонить на кафедру и уточнив информацию отредактировать файл 
                             break;                                                  // 2) вероятность одинакового серийника на разных марках хоть и мала, но возможна
                         }
                     }
                 }
-                if (repeat_flag)
+                else if ((i > 0) && (filename == ECM_CONF))
                 {
-                    data_ECM[i].mark = "";
-                    data_ECM[i].serial_number = "";
-                    data_ECM[i].cathedra = "";
+                    for (int j=0; j<i; j++)                     // Проверка на повторные записи в файле
+                    {
+                        if (array[j].mark == mark)                                    
+                        {
+                            if (field_1 != "=")
+                                array[j].field_1 = field_1;
+                            if ((field_2 != "=") && (field_2 != "=\n"))
+                                array[j].field_2 = field_2;
+                            
+                            repeat_flag = true;                                     
+                            break;                                                  
+                        }
+                    }
                 }
-                else
+                if (!repeat_flag)
                 {
-                    data_ECM[i].mark = mark;
-                    data_ECM[i].serial_number = serial_number;
-                    data_ECM[i].cathedra = cathedra; 
+                    array[i].mark = mark;
+                    array[i].field_1 = field_1;
+                    array[i].field_2 = field_2;
                 }
             }
         }
@@ -446,23 +451,23 @@ void ECM_reader(data_from_ECM* data_ECM, int SIZE)      // Функция счи
     file.close();
 }
 
-void test_func(data_from_ECM* data_ECM, int SIZE)
+void test_func(data_from_file* data_ECM, int SIZE)
 {
     endwin();
     for (int i = 0; i<SIZE; i++)
     {
         // cout << data_ECM[i].mark << "\t" << data_ECM[i].serial_number << "\t" << data_ECM[i].cathedra << endl;
-        printf("%s\t%s\t%s\n", data_ECM[i].mark.c_str(), data_ECM[i].serial_number.c_str(), data_ECM[i].cathedra.c_str());
+        printf("%s\t%s\t%s\n", data_ECM[i].mark.c_str(), data_ECM[i].field_1.c_str(), data_ECM[i].field_2.c_str());
     }
     sleep(100);
 }
 
-int cathedras_counter(data_from_ECM* input_data, cathedra_counts* array_of_cathedras, int SIZE)        // Функция подсчета количества уникальных кафедр
+int cathedras_counter(data_from_file* input_data, cathedra_counts* array_of_cathedras, int SIZE)        // Функция подсчета количества уникальных кафедр
 {
     int counter = 0;
     for (int i=0; i<SIZE; i++)
     {
-        string cathedra = input_data[i].cathedra;
+        string cathedra = input_data[i].field_2;
         if (i == 0)
         {
             array_of_cathedras[i].cathedra = cathedra;
