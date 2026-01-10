@@ -5,13 +5,33 @@ const string ECM = "ECM.csv";   // Название первого файла
 const string ECM_CONF = "ECM_configuration.csv";    // Название второго файла
 const int SIZE = 20;
 
+struct cathedra_counts
+{
+    string cathedra;
+    int count = 0;
+};
+
+struct data_from_ECM
+{
+    string mark;
+    string serial_number;
+    string cathedra;
+};
+
+struct data_from_ECM_CONF
+{
+    string mark;
+    string terminals;
+    string storage_device;
+};
+
 void Menu(char* argv[])
 {
     initscr();
     cbreak();
     noecho();
     keypad(stdscr, TRUE);
-    curs_set(0); // выключение курсора
+    curs_set(0);            // выключение курсора
 
     bool files_ECM_exist = false;           // Переменная для проверки существования 1-го считываемого файла
     bool file_ECM_CONF_exist = false;   // Переменная для проверки существования 2-го считываемого файла
@@ -229,7 +249,7 @@ void files_is_found()
         printw("Ошибка чтения файла %s !\n", ECM_CONF.c_str());
 }
 
-void Menu_for_viewing(bool* files_ECM_exist, bool* file_ECM_CONF_exist)
+void Menu_for_viewing(bool* files_ECM_exist, bool* file_ECM_CONF_exist)         // Меню просмотра файлов
 {
     if ((*files_ECM_exist == false) || (*file_ECM_CONF_exist == false))
         while(true)
@@ -268,7 +288,7 @@ void Menu_for_viewing(bool* files_ECM_exist, bool* file_ECM_CONF_exist)
             {
                 if (switcher == 1)
                 {
-                    //record_1();
+                    file_viewer_to_screen();
                 }
                 if (switcher == 2)
                 {
@@ -289,13 +309,13 @@ void interface_for_viewing(int choice)
     {
         case 1:
         printw("Выберите:\n\n");
-        printw("<< %s >>\n%s\n", "Просмотр записей", "Экспорт в файл"); 
+        printw("<< %s >>\n%s\n", "Поиск записей", "Экспорт в файл"); 
         printw("\n\nОписание:\n");
         printw("Поиск информации по запросу.\n");
         break;
         case 2:
         printw("Выберите:\n\n");
-        printw("%s\n<< %s >>\n", "Просмотр записей", "Экспорт в файл");
+        printw("%s\n<< %s >>\n", "Поиск записей", "Экспорт в файл");
         printw("\n\nОписание:\n");
         printw("Запись всей информации в файл.\n");
         break;
@@ -305,4 +325,161 @@ void interface_for_viewing(int choice)
         printw("Для исправления ошибки и получения большей информации перейдите в раздел \"Проверка файлов\".");
         break;
     }
+}
+
+void file_viewer_to_screen()            // Режим вывода данных на экран
+{
+    clear();
+    int counter1 = string_counter(ECM);
+    bool flag_ECM_file = files_warning(counter1, ECM);       // Для проверки корректности чтения файла ЭВМ
+    int counter2 = string_counter(ECM_CONF);
+    bool flag_ECM_CONF_file = files_warning(counter2, ECM_CONF);       // Для проверки корректности чтения файла ЭВМ
+    if (flag_ECM_file || flag_ECM_CONF_file)
+        return;                 // Завершение работы функции при ошибки считывания файлов
+
+    const int COUNT_ECM = counter1 - 1;
+    data_from_ECM data_ECM[COUNT_ECM];      // Массив для записи всех полей файла ЭВМ       // Надо бы поменять название
+    ECM_reader(data_ECM, COUNT_ECM);
+
+    //test_func(data_ECM, COUNT_ECM);             // Тестовая функция для отладки
+
+    const int COUNT_ECM_CONF = counter2 - 1;
+    data_from_ECM_CONF data_ECM_CONF[COUNT_ECM_CONF];
+
+
+    //cathedra_counts array_of_cathedras[COUNT_ECM];      // Массив для определения количества машин на каждой кафедре P.S. мб он даже не понадобится
+                                                        // Сделаем его в режиме вывода в файл. Здесь можно обойтись без него! 
+
+    
+}
+
+int string_counter(string file_name)        // Функция подсчета строк в файле
+{                                           // Возвращает -1 при ошибке считывания файла
+    int count = 0;
+    string buf;
+
+    ifstream file;
+    file.open(file_name);
+    if (!file.is_open())
+        return -1;
+
+    while(getline(file, buf))
+        count ++;
+
+    file.close();
+    return count;
+}
+
+bool files_warning(int counter, string filename)            // Предупреждение при ошибке чтения файла
+{                                                           // Возвращает true, если есть ошибки чтения файла. Иначе false
+    if (counter == -1)
+    {
+        printw("Ошибка чтения файла %s!", filename.c_str());
+        refresh();
+        sleep(3);
+        return true;
+    }
+    else if (counter == 1 || counter == 0)
+    {
+        printw("Файл %s пуст! Информация не доступна", filename.c_str());
+        refresh();
+        sleep(3);
+        return true;
+    }
+    else
+        return false;
+}
+
+void ECM_reader(data_from_ECM* data_ECM, int SIZE)      // Функция считывания файла ЭВМ
+{                                                       // При считывании повторных записей возвращает пустую строку 
+    string line;
+    int len;
+    string mark, serial_number, cathedra;
+    ifstream file;
+    file.open(ECM);
+    if (file.is_open())
+    {
+        for (int i=-1; getline(file, line); i++)
+        {
+            bool repeat_flag = false;
+            if (i == -1)
+                continue;                                       // пропуск первой строки
+            else
+            {   
+                string copy_line_1 = line;
+                int position_1 = line.find(",");
+                mark = line.erase(position_1);                  // Выразили марку
+                line = copy_line_1.erase(0, position_1 + 1);
+                int position_2 = line.find(",");
+                string copy_line_2 = line;
+                serial_number = line.erase(position_2);         // Выразили серийный номер
+                cathedra = copy_line_2.erase(0, position_2 + 1);       // Выразили номер кафедры
+
+                if (i > 0)
+                {
+                    for (int j=0; j<i; j++)                     // Проверка на повторные записи в файле
+                    {
+                        if ((data_ECM[j].mark == mark) &&                   
+                            (data_ECM[j].serial_number == serial_number) &&         // Нет смысла проверять только на серийный номер
+                            (data_ECM[j].cathedra == cathedra))                     // потому что: 1) во время записи человек мог посмотреть не на ту строку и ошибочно записать данные
+                        {                                                           // при этом перезаписав данные мы точно не сможем узнать, были они перезаписаны верно или ошибочно (перезаписали вместо правильной)            
+                            repeat_flag = true;                                     // проще позвонить на кафедру и уточнив информацию отредактировать файл 
+                            break;                                                  // 2) вероятность одинакового серийника на разных марках хоть и мала, но возможна
+                        }
+                    }
+                }
+                if (repeat_flag)
+                {
+                    data_ECM[i].mark = "";
+                    data_ECM[i].serial_number = "";
+                    data_ECM[i].cathedra = "";
+                }
+                else
+                {
+                    data_ECM[i].mark = mark;
+                    data_ECM[i].serial_number = serial_number;
+                    data_ECM[i].cathedra = cathedra; 
+                }
+            }
+        }
+    }
+    file.close();
+}
+
+void test_func(data_from_ECM* data_ECM, int SIZE)
+{
+    endwin();
+    for (int i = 0; i<SIZE; i++)
+    {
+        // cout << data_ECM[i].mark << "\t" << data_ECM[i].serial_number << "\t" << data_ECM[i].cathedra << endl;
+        printf("%s\t%s\t%s\n", data_ECM[i].mark.c_str(), data_ECM[i].serial_number.c_str(), data_ECM[i].cathedra.c_str());
+    }
+    sleep(100);
+}
+
+int cathedras_counter(data_from_ECM* input_data, cathedra_counts* array_of_cathedras, int SIZE)        // Функция подсчета количества уникальных кафедр
+{
+    int counter = 0;
+    for (int i=0; i<SIZE; i++)
+    {
+        string cathedra = input_data[i].cathedra;
+        if (i == 0)
+        {
+            array_of_cathedras[i].cathedra = cathedra;
+            array_of_cathedras[i].count = 1;
+        }
+        else
+        {
+            for (int j=0; j<i; j++)
+            {
+                // Нужно сравнивать текущую ячейку входящих данных с предыдущими ячейками для проверки повторений кафедры 
+                // вопрос - с ячейками какого массива сравнивать.
+                // Как будто бы легче сравнивать с ячейками запиСЫВАЕМОГО массива array_of_cathedras
+                // мол сразу зашел, сверил, прибавил
+
+                // да надо сверять также, как при записи строк из первого файла
+            }
+        }
+    }
+    return 1;
 }
