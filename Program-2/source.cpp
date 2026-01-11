@@ -331,21 +331,20 @@ void file_viewer_to_screen()            // Режим вывода данных 
         return;                 // Завершение работы функции при ошибки считывания файлов
 
     const int COUNT_ECM = counter1 - 1;
-    data_from_file data_ECM[COUNT_ECM];      // Массив для записи всех полей файла ЭВМ       // Надо бы поменять название
+    data_from_file data_ECM[COUNT_ECM];      // Данные из файла ЭВМ
     file_reader(data_ECM, COUNT_ECM, ECM);
-
     //test_func(data_ECM, COUNT_ECM);             // Тестовая функция для отладки
 
     const int COUNT_ECM_CONF = counter2 - 1;
-    data_from_file data_ECM_CONF[COUNT_ECM_CONF];
+    data_from_file data_ECM_CONF[COUNT_ECM_CONF];       // Данные из файла конфигураций
     file_reader(data_ECM_CONF, COUNT_ECM_CONF, ECM_CONF);
-
     //test_func(data_ECM_CONF, COUNT_ECM_CONF);             // Тестовая функция для отладки
 
-    //cathedra_counts array_of_cathedras[COUNT_ECM];      // Массив для определения количества машин на каждой кафедре P.S. мб он даже не понадобится
-                                                        // Сделаем его в режиме вывода в файл. Здесь можно обойтись без него! 
+    // cathedra_counts array_of_cathedras[COUNT_ECM];      // Массив уникальных кафедр (и количество их записей) ОКАЗАЛАСЬ НЕНУЖНОЙ
+    // cathedras_counter(data_ECM, array_of_cathedras, COUNT_ECM);                                                            
+    //test_func2(array_of_cathedras, COUNT_ECM);
 
-    
+    input_cathedra(data_ECM, data_ECM_CONF, COUNT_ECM, COUNT_ECM_CONF);
 }
 
 int string_counter(string file_name)        // Функция подсчета строк в файле
@@ -462,13 +461,28 @@ void test_func(data_from_file* data_ECM, int SIZE)
     sleep(100);
 }
 
-int cathedras_counter(data_from_file* input_data, cathedra_counts* array_of_cathedras, int SIZE)        // Функция подсчета количества уникальных кафедр
+void test_func2(cathedra_counts* data_ECM, int SIZE)
 {
-    int counter = 0;
+    endwin();
+    for (int i = 0; i<SIZE; i++)
+    {
+        // cout << data_ECM[i].mark << "\t" << data_ECM[i].serial_number << "\t" << data_ECM[i].cathedra << endl;
+        printf("%s\t%d\n", data_ECM[i].cathedra.c_str(), data_ECM[i].count);
+    }
+    sleep(100);
+}
+
+void cathedras_counter(data_from_file* input_data, cathedra_counts* array_of_cathedras, int SIZE)        // Функция подсчета количества уникальных кафедр
+{
+    //int counter = 0;
     for (int i=0; i<SIZE; i++)
     {
+        bool repeat_flag = false;
         string cathedra = input_data[i].field_2;
-        if (i == 0)
+        if (cathedra.find("\n") != -1)
+            cathedra.erase(cathedra.find("\n"));
+
+        if ((i == 0) && (cathedra != ""))
         {
             array_of_cathedras[i].cathedra = cathedra;
             array_of_cathedras[i].count = 1;
@@ -477,14 +491,205 @@ int cathedras_counter(data_from_file* input_data, cathedra_counts* array_of_cath
         {
             for (int j=0; j<i; j++)
             {
-                // Нужно сравнивать текущую ячейку входящих данных с предыдущими ячейками для проверки повторений кафедры 
-                // вопрос - с ячейками какого массива сравнивать.
-                // Как будто бы легче сравнивать с ячейками запиСЫВАЕМОГО массива array_of_cathedras
-                // мол сразу зашел, сверил, прибавил
-
-                // да надо сверять также, как при записи строк из первого файла
+                if (array_of_cathedras[j].cathedra == cathedra)
+                {
+                    array_of_cathedras[j].count += 1;
+                    repeat_flag = true;
+                    break;
+                }
+            }
+            if ((!repeat_flag) && (cathedra != ""))
+            {
+                array_of_cathedras[i].cathedra = cathedra;
+                array_of_cathedras[i].count = 1;
             }
         }
     }
-    return 1;
+}
+
+void input_cathedra(data_from_file* ECM_array, data_from_file* ECM_CONF_array, int SIZE1, int SIZE2)       // Функция ввода для поиска кафедрфы
+{
+    def_prog_mode();   // Сохраняем режим ncurses
+    endwin();          // Временно выключаем ncurses
+    system("clear");   // Очищаем экран
+
+    bool exit_flag = false;
+    printf("Для выхода зажмите сочетание клавиш \"Esc\"+\"Enter\"\n");
+    printf("-------------------------------------------------\n\n");
+    while (!exit_flag)
+    {
+        string cathedra = scan_cathedra();
+        if (cathedra.find("\n") != -1)
+            cathedra.erase(cathedra.find("\n"));
+
+        if (cathedra == "")
+            exit_flag = true;
+        else
+        {
+            bool checking_flag = false;
+            for (int i=0; i<SIZE1; i++)
+            {
+                if ((ECM_array[i].field_2 == cathedra) && (cathedra != ""))
+                    checking_flag = true;
+            }
+            if (checking_flag == false)
+                printf("Информация о данной кафедре отсутствует.\n\n");
+            else
+                to_screen(cathedra, ECM_array, ECM_CONF_array, SIZE1, SIZE2);
+        }
+    }
+
+    system("clear");
+    reset_prog_mode();      // Восстанавливаем режим ncurses
+    refresh();
+}
+
+void to_screen(string cathedra, data_from_file* ECM_array, data_from_file* ECM_CONF_array, int SIZE1, int SIZE2)     // Функция вывода информации на экран
+{
+    cout << setw(27) << left << "Марка ЭВМ" << setw(27 + 12) << left << "Заводской номер" 
+        << setw(27 + 15) << left << "Кол-во терминалов" << setw(27) << left << "Кол-во ВЗУ" << endl;
+    for (int i=0; i<SIZE1; i++)
+    {   
+        string mark;
+        string serial_number = "Нет данных               ";
+        string terminals = "Нет данных                 ";
+        string storage_device = "Нет данных";
+
+        if (ECM_array[i].field_2 == cathedra)
+        {
+            mark = ECM_array[i].mark;
+            if (ECM_array[i].field_1 != "=")
+                serial_number = ECM_array[i].field_1;
+            for (int j=0; j<SIZE2; j++)
+            {
+                if (ECM_CONF_array[j].mark == mark)
+                {
+                    if (ECM_CONF_array[j].field_1 != "=")
+                        terminals = ECM_CONF_array[j].field_1;
+                    if (ECM_CONF_array[j].field_2 != "=")
+                        storage_device = ECM_CONF_array[j].field_2;
+                    break;
+                }
+            }
+
+            cout << setw(19) << left << mark << setw(19 + 6) << left << serial_number 
+                << setw(19 + 17 - 9) << left << terminals << setw(19) << left << storage_device << endl;
+        }
+    }
+    cout << "\n";
+}
+
+string scan_cathedra()    // Функция, считывающая номер кафедры с консоли
+{                                                            
+    while(true)                                                 
+    {                                                     
+        string checker = "";
+        char cathedra[SIZE] = "";
+        int i = 0;
+        printf("Номер кафедры: ");
+        while((cathedra[i] = getchar()) != '\n')
+        {
+            checker+=cathedra;
+            i++;
+            if (i == SIZE-1)        // Очищаем буфер при превышении допустимого количества введенных символов
+            {
+                clear_buffer(&checker);         // При очистке записываем символы из буфера в переменную checker
+                break;
+            }
+        }
+
+        if (find_esc(checker) == 0)         // Проверка на принудительный выход по Esc
+        {
+            return "\n";
+        }
+        if (cathedra_symb(cathedra) == 0)       // Проверка на корректность символов
+        {
+        printf("Ошибка ввода! Недопустимые символы!\nНомер может содержать только цифры и заглавные буквы русского алфавита!\n\n");
+            continue;
+        }
+        if (cathedra_symb_counter(cathedra) == 0)       // Проверка на максимальное количество символов
+        {
+            printf("Ошибка ввода! Номер не может содержать больше 3 численных и 3 буквенных символов!\n\n");    
+            continue;
+        }
+        if ((cathedra[0] == '\n') || (cathedra[0] == ' '))      //проверка на пустую строку
+        {
+            printf("Ошибка ввода! Введена пустая строка!\n\n");
+            continue;
+        }
+        else
+            return cathedra;
+    }
+}
+
+void clear_buffer(string* buffer)       // Функция очистки буфера
+{
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) 
+    {
+        if (buffer != nullptr)      // Проверка передаваемого параметра
+            *buffer += (char)c;     // Записываем символы из буфера в параметр buffer
+    }
+}
+
+int find_esc(string mark)      // Функция проверки нажатия esc
+{                              // Возвращает 0, если esc найден. Иначе 1
+    int invalid_symb = 1; 
+    mark += "\n";
+    for (int i=0; (mark[i] != '\n'); i++)
+    {
+        if (mark[i] == 27)
+        {
+            invalid_symb = 0;
+            break;
+        }
+    }
+    return invalid_symb;
+}
+
+int cathedra_symb(string cathedra)      // Функция проверки символов поля "Кафедра"
+{                                       // Возвращает 1, если введены корректные символы. Иначе 0
+    string rus_high = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧЩЭЮЯ";
+    string numbers = "0123456789";
+    int invalid_symb = 1; 
+    cathedra += "\n";
+    if ((cathedra == "=\n") || (cathedra == "=\n\n"))       // Проверка на ввод отсутствующей информации
+        return invalid_symb;
+
+    for (int i=0; (cathedra[i] != '\n'); i++)
+    {
+        if ((rus_high.find(cathedra[i]) == -1) &&
+            (numbers.find(cathedra[i]) == -1))
+        {
+            invalid_symb = 0;
+            break;
+        }
+    }
+    return invalid_symb;
+}
+
+int cathedra_symb_counter(string cathedra)      // Функция проверки КОЛИЧЕСТВА символов поля Кафедра
+{                                               // Возвращает 1, если введены корректные символы. Иначе 0
+    string rus_high = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧЩЭЮЯ";
+    string numbers = "0123456789";
+    int invalid_symb = 1; 
+    cathedra += "\n";
+    if ((cathedra == "=\n") || (cathedra == "=\n\n"))       // Проверка на ввод отсутствующей информации
+        return invalid_symb;
+    int numb_counter = 0;
+    int symb_counter = 0;
+    for (int i=0; (cathedra[i] != '\n'); i++)
+    {
+        if (rus_high.find(cathedra[i]) != -1)
+        {
+            symb_counter++;
+        }
+        else if (numbers.find(cathedra[i]) != -1)
+        {
+            numb_counter++;
+        }
+    }
+    if ((numb_counter > 3) || (symb_counter > 6))
+        invalid_symb = 0;
+    return invalid_symb;
 }
