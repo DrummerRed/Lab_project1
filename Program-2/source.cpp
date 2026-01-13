@@ -28,10 +28,11 @@ void Menu(char* argv[])
 
     bool files_ECM_exist = false;           // Переменная для проверки существования 1-го считываемого файла
     bool file_ECM_CONF_exist = false;       // Переменная для проверки существования 2-го считываемого файла
-    file_checker(&files_ECM_exist, &file_ECM_CONF_exist);
+    
     int switcher = 1;
     while(true)
     {    
+        file_checker(&files_ECM_exist, &file_ECM_CONF_exist);
         clear();
         interface(switcher);
         refresh();
@@ -149,71 +150,75 @@ void file_checker(bool* file_ECM_exist, bool* file_ECM_CONF_exist)       // Фу
 
 void files_info(bool* files_ECM_exist, bool* file_ECM_CONF_exist, char* argv[])
 {
-    clear();
-    printw("Информация о файлах\n======================================\n\n");
-    char absolute_path[PATH_MAX];
-    bool error_flag = false;
-    string dir_name = "";
-    if (realpath(argv[0], absolute_path))       // Преобразует относительный путь в абсолютный
-        {
-            try
+    bool flag_exit = false;
+    while (flag_exit == false)
+    {
+        file_checker(files_ECM_exist, file_ECM_CONF_exist);
+        clear();
+        printw("Информация о файлах\n======================================\n\n");
+        char absolute_path[PATH_MAX];
+        bool error_flag = false;
+        string dir_name = "";
+        if (realpath(argv[0], absolute_path))       // Преобразует относительный путь в абсолютный
             {
-                string str = argv[0];
-                str.erase(0, 1);
-                dir_name = absolute_path;
-                dir_name.erase(dir_name.find(str), (str.length()));
+                try
+                {
+                    string str = argv[0];
+                    str.erase(0, 1);
+                    dir_name = absolute_path;
+                    dir_name.erase(dir_name.find(str), (str.length()));
+                }
+                catch(const exception& ex)
+                {
+                    error_flag = true;  // Отлавливаем исключение
+                }
             }
-            catch(const exception& ex)
-            {
-                error_flag = true;  // Отлавливаем исключение
-            }
-        }
-        else 
-            error_flag = true;      //Ошибка чтения названия скомпелированного файла
+            else 
+                error_flag = true;      //Ошибка чтения названия скомпелированного файла
 
-    if ((*files_ECM_exist == false) && (*file_ECM_CONF_exist == false))
-    {
-        if (error_flag)
+        if ((*files_ECM_exist == false) && (*file_ECM_CONF_exist == false))
         {
-            printw("Внимание! Файлы с информацией отсутствуют!\n");
-            printw("Добавьте требуемые файлы (%s, %s) в папку с программой\n", ECM.c_str(), ECM_CONF.c_str());
-        } 
-        else
-        {       
-            printw("Внимание! Файлы с информацией отсутствуют!\n");
-            printw("Добавьте требуемые файлы (%s, %s) в директорию:\t%s\n\n", ECM.c_str(), ECM_CONF.c_str(), dir_name.c_str());
-            printw("После добавления перезапустите программу.");
+            if (error_flag)
+            {
+                printw("Внимание! Файлы с информацией отсутствуют!\n");
+                printw("Добавьте требуемые файлы (%s, %s) в папку с программой\n", ECM.c_str(), ECM_CONF.c_str());
+            } 
+            else
+            {       
+                printw("Внимание! Файлы с информацией отсутствуют!\n");
+                printw("Добавьте требуемые файлы (%s, %s) в директорию:\t%s\n\n", ECM.c_str(), ECM_CONF.c_str(), dir_name.c_str());
+                printw("После добавления файлов нажмите Enter или любую другую клавишу.");
+            }
         }
-    }
-    else if ((*files_ECM_exist == false) && (*file_ECM_CONF_exist == true))
-    {
-        if (error_flag)
-            printw("Внимание! Файл ЭВМ (%s) отсутствует!\nДобавьте требуемый файл в папку с программой", ECM.c_str());
-        else
-        {       
-            printw("Внимание! Файл ЭВМ (%s) отсутствует!\n", ECM.c_str());
-            printw("Добавьте требуемый файл в директорию:\t%s\n\n", dir_name.c_str());
-            printw("После добавления перезапустите программу.");
+        else if ((*files_ECM_exist == false) && (*file_ECM_CONF_exist == true))
+        {
+            if (error_flag)
+                printw("Внимание! Файл ЭВМ (%s) отсутствует!\nДобавьте требуемый файл в папку с программой", ECM.c_str());
+            else
+            {       
+                printw("Внимание! Файл ЭВМ (%s) отсутствует!\n", ECM.c_str());
+                printw("Добавьте требуемый файл в директорию:\t%s\n\n", dir_name.c_str());
+                printw("После добавления файла нажмите Enter или любую другую клавишу.");
+            }
         }
-    }
-    else if ((*files_ECM_exist == true) && (*file_ECM_CONF_exist == false))
-    {
-        if (error_flag)
-            printw("Внимание! Файл конфигураций (%s) отсутствует!\nДобавьте требуемый файл в папку с программой", ECM_CONF.c_str());
-        else
-        {       
-            printw("Внимание! Файл конфигураций (%s) отсутствует!\n", ECM_CONF.c_str());
-            printw("Добавьте требуемый файл в директорию:\t%s\n\n", dir_name.c_str());
-            printw("После добавления перезапустите программу.");
+        else if ((*files_ECM_exist == true) && (*file_ECM_CONF_exist == false))
+        {
+            if (error_flag)
+                printw("Внимание! Файл конфигураций (%s) отсутствует!\nДобавьте требуемый файл в папку с программой", ECM_CONF.c_str());
+            else
+            {       
+                printw("Внимание! Файл конфигураций (%s) отсутствует!\n", ECM_CONF.c_str());
+                printw("Добавьте требуемый файл в директорию:\t%s\n\n", dir_name.c_str());
+                printw("После добавления файла нажмите Enter или любую другую клавишу.");
+            }
         }
-    }
-    else
-        files_is_found();
+        else
+            files_is_found();
 
-    int ch = 0;
-    while((int)ch != 27)
-    {
+        int ch = 0;
         ch = getch();
+        if (ch == 27)
+            flag_exit = true;
     }
 }
 
@@ -296,7 +301,7 @@ void Menu_for_viewing(bool* files_ECM_exist, bool* file_ECM_CONF_exist)         
 
 void interface_for_viewing(int choice)
 {
-    printw("Чтобы вернуться в меню нажмите Esc \n");
+    printw("Для возвращения в меню нажмите Esc \n");
     printw("---------------------------------- \n\n");
     switch(choice)
     {
