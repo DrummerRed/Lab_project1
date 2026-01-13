@@ -27,7 +27,7 @@ void Menu(char* argv[])
     curs_set(0);            // выключение курсора
 
     bool files_ECM_exist = false;           // Переменная для проверки существования 1-го считываемого файла
-    bool file_ECM_CONF_exist = false;   // Переменная для проверки существования 2-го считываемого файла
+    bool file_ECM_CONF_exist = false;       // Переменная для проверки существования 2-го считываемого файла
     file_checker(&files_ECM_exist, &file_ECM_CONF_exist);
     int switcher = 1;
     while(true)
@@ -154,7 +154,7 @@ void files_info(bool* files_ECM_exist, bool* file_ECM_CONF_exist, char* argv[])
     char absolute_path[PATH_MAX];
     bool error_flag = false;
     string dir_name = "";
-    if (realpath(argv[0], absolute_path))
+    if (realpath(argv[0], absolute_path))       // Преобразует относительный путь в абсолютный
         {
             try
             {
@@ -285,7 +285,7 @@ void Menu_for_viewing(bool* files_ECM_exist, bool* file_ECM_CONF_exist)         
                 }
                 if (switcher == 2)
                 {
-                    //record_2();
+                    file_viewer_to_file();
                 }
             }
             if (ch == 27)
@@ -333,18 +333,36 @@ void file_viewer_to_screen()            // Режим вывода данных 
     const int COUNT_ECM = counter1 - 1;
     data_from_file data_ECM[COUNT_ECM];      // Данные из файла ЭВМ
     file_reader(data_ECM, COUNT_ECM, ECM);
-    //test_func(data_ECM, COUNT_ECM);             // Тестовая функция для отладки
 
     const int COUNT_ECM_CONF = counter2 - 1;
     data_from_file data_ECM_CONF[COUNT_ECM_CONF];       // Данные из файла конфигураций
     file_reader(data_ECM_CONF, COUNT_ECM_CONF, ECM_CONF);
-    //test_func(data_ECM_CONF, COUNT_ECM_CONF);             // Тестовая функция для отладки
-
-    // cathedra_counts array_of_cathedras[COUNT_ECM];      // Массив уникальных кафедр (и количество их записей) ОКАЗАЛАСЬ НЕНУЖНОЙ
-    // cathedras_counter(data_ECM, array_of_cathedras, COUNT_ECM);                                                            
-    //test_func2(array_of_cathedras, COUNT_ECM);
 
     input_cathedra(data_ECM, data_ECM_CONF, COUNT_ECM, COUNT_ECM_CONF);
+}
+
+void file_viewer_to_file()            // Режим вывода данных в файл
+{
+    clear();
+    int counter1 = string_counter(ECM);
+    bool flag_ECM_file = files_warning(counter1, ECM);       // Для проверки корректности чтения файла ЭВМ
+    int counter2 = string_counter(ECM_CONF);
+    bool flag_ECM_CONF_file = files_warning(counter2, ECM_CONF);       // Для проверки корректности чтения файла ЭВМ
+    if (flag_ECM_file || flag_ECM_CONF_file)
+        return;                 // Завершение работы функции при ошибки считывания файлов
+
+    const int COUNT_ECM = counter1 - 1;
+    data_from_file data_ECM[COUNT_ECM];      // Данные из файла ЭВМ
+    file_reader(data_ECM, COUNT_ECM, ECM);
+
+    const int COUNT_ECM_CONF = counter2 - 1;
+    data_from_file data_ECM_CONF[COUNT_ECM_CONF];       // Данные из файла конфигураций
+    file_reader(data_ECM_CONF, COUNT_ECM_CONF, ECM_CONF);
+
+    cathedra_counts array_of_cathedras[COUNT_ECM];      // Массив уникальных кафедр (и их количество)
+    cathedras_counter(data_ECM, array_of_cathedras, COUNT_ECM);                                                            
+
+    file_creator(data_ECM, data_ECM_CONF, array_of_cathedras, COUNT_ECM, COUNT_ECM_CONF);
 }
 
 int string_counter(string file_name)        // Функция подсчета строк в файле
@@ -474,7 +492,6 @@ void test_func2(cathedra_counts* data_ECM, int SIZE)
 
 void cathedras_counter(data_from_file* input_data, cathedra_counts* array_of_cathedras, int SIZE)        // Функция подсчета количества уникальных кафедр
 {
-    //int counter = 0;
     for (int i=0; i<SIZE; i++)
     {
         bool repeat_flag = false;
@@ -558,15 +575,15 @@ void to_screen(string cathedra, data_from_file* ECM_array, data_from_file* ECM_C
         if (ECM_array[i].field_2 == cathedra)
         {
             mark = ECM_array[i].mark;
-            if (ECM_array[i].field_1 != "=")
+            if ((ECM_array[i].field_1 != "=") && (ECM_array[i].field_1 != ""))
                 serial_number = ECM_array[i].field_1;
             for (int j=0; j<SIZE2; j++)
             {
                 if (ECM_CONF_array[j].mark == mark)
                 {
-                    if (ECM_CONF_array[j].field_1 != "=")
+                    if ((ECM_CONF_array[j].field_1 != "=") && (ECM_CONF_array[j].field_1 != ""))
                         terminals = ECM_CONF_array[j].field_1;
-                    if (ECM_CONF_array[j].field_2 != "=")
+                    if ((ECM_CONF_array[j].field_2 != "=") && (ECM_CONF_array[j].field_2 != ""))
                         storage_device = ECM_CONF_array[j].field_2;
                     break;
                 }
@@ -692,4 +709,84 @@ int cathedra_symb_counter(string cathedra)      // Функция проверк
     if ((numb_counter > 3) || (symb_counter > 6))
         invalid_symb = 0;
     return invalid_symb;
+}
+
+void file_creator(data_from_file* ECM_array, data_from_file* ECM_CONF_array, cathedra_counts* array_of_cathedras, int SIZE1, int SIZE2)     // Создание файла для вывода информации
+{
+    time_t seconds = time(NULL);                // time(NULL) получает время в секундах
+    tm* timeinfo = localtime(&seconds);         // Преобразует time_t в структуру tm
+    char buffer[100];
+    strftime(buffer, 100, "%d.%m.%Y_%H-%M-%S", timeinfo);       // Форматирование строки как дата-время
+    string filename = buffer;
+    filename = filename + ".txt";
+
+    ofstream file;
+    file.open(filename);
+    
+    for (int i=0; i<SIZE1; i++)
+    {
+        string cathedra;
+        if ((array_of_cathedras[i].cathedra != "") && (array_of_cathedras[i].cathedra != "="))
+        {
+            cathedra = array_of_cathedras[i].cathedra;
+            file << "Кафедра: " << cathedra << endl;
+            file << setw(27) << left << "Марка ЭВМ" << setw(27 + 12) << left << "Заводской номер" 
+                << setw(27 + 15) << left << "Кол-во терминалов" << setw(27) << left << "Кол-во ВЗУ" << endl;
+            for (int i=0; i<SIZE1; i++)
+            {   
+                string mark;
+                string serial_number = "Нет данных               ";
+                string terminals = "Нет данных                 ";
+                string storage_device = "Нет данных";
+
+                if (ECM_array[i].field_2 == cathedra)
+                {
+                    mark = ECM_array[i].mark;
+                    if ((ECM_array[i].field_1 != "=") && (ECM_array[i].field_1 != ""))
+                        serial_number = ECM_array[i].field_1;
+                    for (int j=0; j<SIZE2; j++)
+                    {
+                        if (ECM_CONF_array[j].mark == mark)
+                        {
+                            if ((ECM_CONF_array[j].field_1 != "=") && (ECM_CONF_array[j].field_1 != ""))
+                                terminals = ECM_CONF_array[j].field_1;
+                            if ((ECM_CONF_array[j].field_2 != "=") && (ECM_CONF_array[j].field_2 != ""))
+                                storage_device = ECM_CONF_array[j].field_2;
+                            break;
+                        }
+                    }
+
+                    file << setw(19) << left << mark << setw(19 + 6) << left << serial_number 
+                        << setw(19 + 17 - 9) << left << terminals << setw(19) << left << storage_device << endl;
+                }
+            }
+            file << "\n";
+        }
+    }
+
+    file.close();
+    interface_for_file_creator(filename);
+}
+
+void interface_for_file_creator(string filename)        // Интерфейс записи файла
+{
+    clear();
+    printw("Данные были успешно записаны в файл\n\n");
+
+    char absolute_path[PATH_MAX];
+    string dir_name = "";
+    if (realpath(filename.c_str(), absolute_path))       // Преобразует относительный путь в абсолютный
+    {
+        printw("Имя файла:\t%s\n", filename.c_str());
+        printw("Путь до файла:\t%s", absolute_path);
+    }
+    else 
+        printw("Ошибка 77! Файл не был загружен!\n");
+
+    printw("\n\n\n\nДля продолжения нажмите Enter...");
+    int ch = 0;
+    while((int)ch != 10)
+    {
+        ch = getch();
+    }
 }

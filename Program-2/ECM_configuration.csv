@@ -1,7 +1,9 @@
 Марка ЭВМ,Количество терминалов,Количество внешних запоминающих устройств
 Apple2-pc,1,4
-5564,5,5
+Macintosh,5,5
 Apple-PC,142,=
 Xiaomi,5,8
-Apple2-pc,=,9898
-Apple mac book,=,10
+Apple2-pc,7,
+Apple mac book,,10
+First PC,3,15
+Second PC,8,0

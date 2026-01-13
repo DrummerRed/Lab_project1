@@ -28,6 +28,10 @@ void file_reader(data_from_file* array, int SIZE, string filename);      // Фу
 void cathedras_counter(data_from_file* input_data, cathedra_counts* array_of_cathedras, int SIZE);        // Функция подсчета количества уникальных кафедр
 void to_screen(string cathedra, data_from_file* ECM_array, data_from_file* ECM_CONF_array, int SIZE1, int SIZE2);     // Функция вывода информации на экран
 
+void file_viewer_to_file();            // Режим вывода данных в файл
+void file_creator(data_from_file* ECM_array, data_from_file* ECM_CONF_array, cathedra_counts* array_of_cathedras, int SIZE1, int SIZE2);     // Создание файла для вывода информации
+void interface_for_file_creator(string filename);        // Интерфейс записи файла
+
 void input_cathedra(data_from_file* ECM_array, data_from_file* ECM_CONF_array, int SIZE1, int SIZE2);       // Функция ввода для поиска кафедрфы
 string scan_cathedra();    // Функция, считывающая номер кафедры с консоли
 void clear_buffer(string* buffer);       // Функция очистки буфера
