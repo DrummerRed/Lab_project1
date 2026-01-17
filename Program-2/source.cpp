@@ -224,6 +224,7 @@ void files_info(bool* files_ECM_exist, bool* file_ECM_CONF_exist, char* argv[])
 
 void files_is_found()
 {
+    printw("Нажмите Enter, чтобы обновить данные после загрузки новых файлов.\n\n");
     printw("Все рабочие файлы были успешно загружены.\n\n");
     char absolute_path[PATH_MAX];
     if (realpath(ECM.c_str(), absolute_path))
@@ -724,6 +725,7 @@ void file_creator(data_from_file* ECM_array, data_from_file* ECM_CONF_array, cat
     strftime(buffer, 100, "%d.%m.%Y_%H-%M-%S", timeinfo);       // Форматирование строки как дата-время
     string filename = buffer;
     filename = filename + ".txt";
+    filename = "Отчет_" + filename;
 
     ofstream file;
     file.open(filename);
