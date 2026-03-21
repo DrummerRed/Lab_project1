@@ -1,0 +1,11 @@
+Марка ЭВМ          Заводской номер          Кол-во терминалов          Кол-во ВЗУ          Кафедра               
+Apple-PC           X658GHC                  14                         Нет данных          707Б              
+Apple MacBook Pro  ABD689HG3497HJ645        Нет данных                 10                  802                
+Asus-PC            RFGD356HJKL              5                          5                   303                
+Asus VivoBook      56                       Нет данных                 Нет данных          703                
+HUAWEI MateBook    Нет данных               8                          0                   703                
+Apple2-PC          787HGK08D                7                          Нет данных          301                
+Apple MacBook Pro  Нет данных               Нет данных                 10                  301                
+HP Pavilion        G565H424                 3                          15                  701                
+Asus-PC            DFAO4R8                  5                          5                   701                
+Acer Aspire        G25H424                  Нет данных                 Нет данных          701                
