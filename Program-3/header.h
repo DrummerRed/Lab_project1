@@ -29,4 +29,8 @@ int choose_field(columns* array, int SIZE);
 int type_sort();
 void regroup_array(int field, columns* array, int SIZE);
 
+void swap(string array[], int low, int high);                            // Перестановка элементов массива
+int partition(string array[], int low, int high, string pivot);          // Деление массива при выполнении сортировки
+void quicksort(string array[], int low, int high);
+
 void debug_print(columns* array, int SIZE);          // удалить

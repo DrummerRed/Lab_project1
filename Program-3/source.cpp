@@ -56,7 +56,7 @@ void Menu(char* argv[])         // Главное меню программы
             if (switcher == 3)
             {
                 endwin();
-                system("clear");
+                //system("clear");///////////////////ВЕРНУТЬ
                 exit(0);
             }
         }
@@ -191,6 +191,12 @@ void Menu_for_sorting()
         return;
 
     regroup_array(field, array, FIELDS);
+
+    debug_print(array, FIELDS);
+    int len = string_counter("Отчет_05.03.2026_19-14-19.txt")-1;
+    quicksort(array->ptr, 0, len-1);
+    debug_print(array, FIELDS);
+    cout << endl << len;
 }
 
 int file_parser(columns* array, int SIZE, string file_name)         // Возвращает 1, если парсинг файла удался
@@ -200,7 +206,7 @@ int file_parser(columns* array, int SIZE, string file_name)         // Возв�
         return -1;
     else
         for (int i=0; i<SIZE; i++)
-            array[i].ptr = new string[count];       // Инициализируем динамические массивы
+            array[i].ptr = new string[count - 1];       // Инициализируем динамические массивы
 
     ifstream file;
     file.open(file_name);
@@ -299,7 +305,8 @@ string inverse_del_space(string str)      // Функция очистки ст�
 
 void debug_print(columns* array, int SIZE)
 {
-    int count = 10;
+    endwin();
+    int count = string_counter("Отчет_05.03.2026_19-14-19.txt") - 1;
     for (int i=0; i<SIZE; i++)
     {
         for (int j=0; j<count; j++)
@@ -308,6 +315,7 @@ void debug_print(columns* array, int SIZE)
         }
         cout << endl;
     }
+    initscr();
 }
 
 int choose_field(columns* array, int SIZE)          // Возвращает индекс выбранного элемента массива
@@ -400,5 +408,43 @@ void regroup_array(int field, columns* array, int SIZE)            // Выпол
             array[i].column_name = array[i-1].column_name;
             array[i].ptr = array[i-1].ptr;
         }
+    }
+}
+
+void swap(string array[], int low, int high)                // Перестановка элементов массива
+{
+    string temp = array[low];
+    array[low] = array[high];
+    array[high] = temp;
+}
+
+int partition(string array[], int low, int high, string pivot)          // Деление массива при выполнении сортировки
+{
+    int i = low;
+    int j = low;
+
+    while (i <= high)
+    {
+        if (array[i] > pivot)
+            i++;
+        else 
+        {
+            swap(array, i, j);
+            i++;
+            j++;
+        }
+    }
+    return (j - 1);
+}
+
+void quicksort(string array[], int low, int high)
+{
+    if (low < high)
+    {
+        string pivot = array[high];
+        int pos = partition(array, low, high, pivot);
+
+        quicksort(array, low, pos-1);
+        quicksort(array, pos+1, high);
     }
 }
