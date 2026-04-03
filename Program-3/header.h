@@ -29,8 +29,12 @@ int choose_field(columns* array, int SIZE);
 int type_sort();
 void regroup_array(int field, columns* array, int SIZE);
 
-void swap(string array[], int low, int high);                            // Перестановка элементов массива
-int partition(string array[], int low, int high, string pivot);          // Деление массива при выполнении сортировки
-void quicksort(string array[], int low, int high);
+void swap(columns array[], int low, int high);                            // Перестановка элементов массива
+int partition(columns array[], int low, int high, string pivot);          // Деление массива при выполнении сортировки
+void quicksort(columns array[], int low, int high);
+
+void file_creator(columns* array, int SIZE);                     // Вывод в файл
+void interface_for_file_creator(string filename);
+void add_whitespace(columns* array);              // Добавляет к каждой строке пробелы для табличного вывода в файл
 
 void debug_print(columns* array, int SIZE);          // удалить

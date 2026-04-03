@@ -7,6 +7,7 @@ struct columns
 {
     string column_name;
     string* ptr = nullptr;
+    int field_length = 0;
 };
 
 void Menu(char* argv[])         // Главное меню программы
@@ -180,7 +181,6 @@ void Menu_for_sorting()
         printw("Ошибка чтения файла!");
         return;
     }
-    // debug_print(array, FIELDS);
 
     int field = choose_field(array, FIELDS);                // Выбор поля для сортировки
     if (field == -1)
@@ -192,11 +192,14 @@ void Menu_for_sorting()
 
     regroup_array(field, array, FIELDS);
 
-    debug_print(array, FIELDS);
-    int len = string_counter("Отчет_05.03.2026_19-14-19.txt")-1;
-    quicksort(array->ptr, 0, len-1);
-    debug_print(array, FIELDS);
-    cout << endl << len;
+    // debug_print(array, FIELDS);             // УДАЛИТЬ
+    int len = string_counter("Отчет_05.03.2026_19-14-19.txt")-1;        // УБРАТЬ ХАРДКОД
+    quicksort(array, 0, len-1);
+    // debug_print(array, FIELDS);             // УДАЛИТЬ
+
+    file_creator(array, FIELDS);
+
+    /////////// в конце нужно очистить память!
 }
 
 int file_parser(columns* array, int SIZE, string file_name)         // Возвращает 1, если парсинг файла удался
@@ -318,6 +321,68 @@ void debug_print(columns* array, int SIZE)
     initscr();
 }
 
+void file_creator(columns* array, int SIZE)                     // Вывод в файл         // Добавить направление и ввод файла
+{
+    int count = string_counter("Отчет_05.03.2026_19-14-19.txt");            // Убрать хардкод
+    string filename_out = "123456.txt";
+
+    string whitespace(10, ' ');
+    add_whitespace(array);
+
+    ofstream file;
+    file.open(filename_out);
+    for(int i=-1; i<count-1; i++)             // 2 этих цикла убрать в функцию и добавить реверс
+    {
+        for(int j=0; j<SIZE; j++)
+        {
+            if (i==-1)
+            {
+                file << array[j].column_name;
+            }
+            else
+            {
+                // int count = array[j].field_length;
+                int count = 27;///
+                file << setw(count) << left << array[j].ptr[i];
+            }
+        }
+        file << endl;
+    }
+
+    file.close();
+    interface_for_file_creator(filename_out);
+}
+
+void add_whitespace(columns* array)              // Добавляет к каждой строке пробелы для табличного вывода в файл
+{           // Похорошему надо бы реализовать сверку поля, по-типу "ключ-значение"
+    for(int i=0; i<FIELDS; i++)
+    {
+        string name;
+        name = array[i].column_name;
+        if (name == "Марка ЭВМ")
+            array[i].column_name = "Марка ЭВМ                  ";
+        else if (name == "Заводской номер")
+            array[i].column_name = "Заводской номер            ";
+        else if (name == "Кол-во терминалов")
+            array[i].column_name = "Кол-во терминалов          ";
+        else if (name == "Кол-во ВЗУ")
+            array[i].column_name = "Кол-во ВЗУ                 ";
+        else 
+            array[i].column_name = "Кафедра                    ";
+    }
+
+    int count = string_counter("Отчет_05.03.2026_19-14-19.txt");            // Убрать хардкод
+    for(int i=0; i<FIELDS; i++)
+    {
+        for(int j=0; j< count-1; j++)
+        {
+            string str = array[i].ptr[j];
+            if (str == "Нет данных")
+                array[i].ptr[j] = "Нет данных                 ";
+        }
+    }
+}
+
 int choose_field(columns* array, int SIZE)          // Возвращает индекс выбранного элемента массива
 {                                                   // либо возвращает -1 при нажатии Esc
     int index = 0;
@@ -411,21 +476,24 @@ void regroup_array(int field, columns* array, int SIZE)            // Выпол
     }
 }
 
-void swap(string array[], int low, int high)                // Перестановка элементов массива
+void swap(columns array[], int low, int high)                // Перестановка элементов массива
 {
-    string temp = array[low];
-    array[low] = array[high];
-    array[high] = temp;
+    for(int i=0; i<FIELDS; i++)
+    {
+        string temp = array[i].ptr[low];
+        array[i].ptr[low] = array[i].ptr[high];
+        array[i].ptr[high] = temp;
+    }
 }
 
-int partition(string array[], int low, int high, string pivot)          // Деление массива при выполнении сортировки
+int partition(columns array[], int low, int high, string pivot)          // Деление массива при выполнении сортировки
 {
     int i = low;
     int j = low;
 
     while (i <= high)
     {
-        if (array[i] > pivot)
+        if (array[0].ptr[i] > pivot)
             i++;
         else 
         {
@@ -437,14 +505,37 @@ int partition(string array[], int low, int high, string pivot)          // Де�
     return (j - 1);
 }
 
-void quicksort(string array[], int low, int high)
+void quicksort(columns array[], int low, int high)
 {
     if (low < high)
     {
-        string pivot = array[high];
+        string pivot = array[0].ptr[high];
         int pos = partition(array, low, high, pivot);
 
         quicksort(array, low, pos-1);
         quicksort(array, pos+1, high);
+    }
+}
+
+void interface_for_file_creator(string filename)        // Интерфейс записи файла
+{
+    clear();
+    printw("Данные были успешно записаны в файл\n\n");
+
+    char absolute_path[PATH_MAX];
+    string dir_name = "";
+    if (realpath(filename.c_str(), absolute_path))       // Преобразует относительный путь в абсолютный
+    {
+        printw("Имя файла:\t%s\n", filename.c_str());
+        printw("Путь до файла:\t%s", absolute_path);
+    }
+    else 
+        printw("Ошибка! Файл не был загружен!\n");
+
+    printw("\n\n\n\nДля продолжения нажмите Enter...");
+    int ch = 0;
+    while((int)ch != 10)
+    {
+        ch = getch();
     }
 }
