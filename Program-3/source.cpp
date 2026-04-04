@@ -197,7 +197,7 @@ void Menu_for_sorting()
     quicksort(array, 0, len-1);
     // debug_print(array, FIELDS);             // УДАЛИТЬ
 
-    file_creator(array, FIELDS);
+    file_creator(array, FIELDS, type);
 
     /////////// в конце нужно очистить память!
 }
@@ -321,36 +321,60 @@ void debug_print(columns* array, int SIZE)
     initscr();
 }
 
-void file_creator(columns* array, int SIZE)                     // Вывод в файл         // Добавить направление и ввод файла
+void file_creator(columns* array, int SIZE, int type)                     // Вывод в файл         // Добавить направление и ввод файла
 {
     int count = string_counter("Отчет_05.03.2026_19-14-19.txt");            // Убрать хардкод
     string filename_out = "123456.txt";
 
-    string whitespace(10, ' ');
-    add_whitespace(array);
+    add_whitespace(array);                              // "Причесываем" поля к для табличной записи (добавление пробелов)
+    if (type == 0)
+        record(array, count, SIZE, filename_out);
+    else
+        reverse_record(array, count, SIZE, filename_out);
 
+    interface_for_file_creator(filename_out);
+}
+
+void record(columns* array, int ROWS, int COLS, string filename_out)                // Вывод сортировки по возрастанию
+{
     ofstream file;
     file.open(filename_out);
-    for(int i=-1; i<count-1; i++)             // 2 этих цикла убрать в функцию и добавить реверс
+    for(int i=-1; i<ROWS-1; i++)             
     {
-        for(int j=0; j<SIZE; j++)
+        for(int j=0; j<COLS; j++)
         {
-            if (i==-1)
-            {
+            if (i == -1)
                 file << array[j].column_name;
-            }
             else
             {
-                // int count = array[j].field_length;
-                int count = 27;///
+                int count = 27;
                 file << setw(count) << left << array[j].ptr[i];
             }
         }
         file << endl;
     }
-
     file.close();
-    interface_for_file_creator(filename_out);
+}
+
+void reverse_record(columns* array, int ROWS, int COLS, string filename_out)                // Вывод сортировки по убыванию
+{
+    ofstream file;
+    file.open(filename_out);
+    for(int i=ROWS-1; i>-1; i--)             
+    {
+        for(int j=0; j<COLS; j++)
+        {
+            if (i == ROWS-1)
+                file << array[j].column_name;
+            else
+            {
+                int count = 27;
+                file << setw(count) << left << array[j].ptr[i];
+            }
+        }
+        file << endl;
+    }
+    file.close();
 }
 
 void add_whitespace(columns* array)              // Добавляет к каждой строке пробелы для табличного вывода в файл

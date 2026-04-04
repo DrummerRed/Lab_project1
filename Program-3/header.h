@@ -33,8 +33,10 @@ void swap(columns array[], int low, int high);                            // П�
 int partition(columns array[], int low, int high, string pivot);          // Деление массива при выполнении сортировки
 void quicksort(columns array[], int low, int high);
 
-void file_creator(columns* array, int SIZE);                     // Вывод в файл
+void file_creator(columns* array, int SIZE, int type);                     // Вывод в файл
 void interface_for_file_creator(string filename);
 void add_whitespace(columns* array);              // Добавляет к каждой строке пробелы для табличного вывода в файл
+void record(columns* array, int ROWS, int COLS, string filename_out);                // Вывод сортировки по возрастанию
+void reverse_record(columns* array, int ROWS, int COLS, string filename_out);                // Вывод сортировки по убыванию
 
 void debug_print(columns* array, int SIZE);          // удалить
