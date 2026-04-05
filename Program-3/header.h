@@ -19,7 +19,9 @@ void interface(int choice);     // Отрисовка интерфейса гл�
 void Help();                    // Функция работы пункта меню "Помощь"
 
 void Menu_for_sorting();
-void choose_file_interface();
+string choose_file_name_in();
+string get_filename();
+bool file_checker(string filename);       // Функция проверки существования рабочего файла программы
 int file_parser(columns* array, int SIZE, string file_name);
 int string_counter(string file_name);
 string del_space(string str);
@@ -33,9 +35,9 @@ void swap(columns array[], int low, int high);                            // П�
 int partition(columns array[], int low, int high, string pivot);          // Деление массива при выполнении сортировки
 void quicksort(columns array[], int low, int high);
 
-void file_creator(columns* array, int SIZE, int type);                     // Вывод в файл
+void file_creator(columns* array, int SIZE, int type, string file_name);                     // Вывод в файл
 void interface_for_file_creator(string filename);
-void add_whitespace(columns* array);              // Добавляет к каждой строке пробелы для табличного вывода в файл
+void add_whitespace(columns* array, string file_name);              // Добавляет к каждой строке пробелы для табличного вывода в файл
 void record(columns* array, int ROWS, int COLS, string filename_out);                // Вывод сортировки по возрастанию
 void reverse_record(columns* array, int ROWS, int COLS, string filename_out);                // Вывод сортировки по убыванию
 

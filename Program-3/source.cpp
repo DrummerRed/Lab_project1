@@ -18,13 +18,9 @@ void Menu(char* argv[])         // Главное меню программы
     keypad(stdscr, TRUE);
     curs_set(0);            // выключение курсора
 
-    // bool files_ECM_exist = false;           // Переменная для проверки существования 1-го считываемого файла
-    // bool file_ECM_CONF_exist = false;       // Переменная для проверки существования 2-го считываемого файла
-    
     int switcher = 1;
     while(true)
     {    
-        // file_checker(&files_ECM_exist, &file_ECM_CONF_exist);
         clear();
         interface(switcher);
         refresh();
@@ -52,12 +48,11 @@ void Menu(char* argv[])         // Главное меню программы
             if (switcher == 2)
             {
                 Menu_for_sorting();
-                // choose_file_interface();
             }
             if (switcher == 3)
             {
                 endwin();
-                //system("clear");///////////////////ВЕРНУТЬ
+                system("clear");
                 exit(0);
             }
         }
@@ -113,69 +108,89 @@ void Help()             // Функция работы пункта меню "П
     }
 }
 
-void choose_file_interface()
-{
+string choose_file_name_in()                            // Обработка имени входного файла
+{                                                       // Возвращает имя файла при корректном вводе
+    string str;                                         // Либо пустую строку при выходе из режима
+
     clear();
     printw("Для возврата в меню нажмите Esc\n");
     printw("-------------------------------\n\n");
-    printw("Введите название файла: ");
     refresh();
     noecho();
     curs_set(1);            // включение курсора
     
-    // wchar_t ch;
-    int i=0;
-    wint_t ch;
-    wchar_t filename[256];
-    string str = "";
-
-    // Запоминаем позицию ввода
-    int y, x;
-    getyx(stdscr, y, x);
-
-    while(true)
+    bool file_exist = false;
+    while(!file_exist)
     {
-        ch = getch();
-        // get_wch(&ch);     НЕИСПОЛЬЗУЕМ
-        if (ch == 27)
-            break;
+        printw("Введите название файла: ");
+        refresh();
 
-        if (ch == KEY_BACKSPACE || ch == 127) { // Backspace
-            // пока без backspace
-            continue;
-            if (!str.empty()) {
-                str.erase(str.length()-1);
-                // if (ch_pred in eng)
-                //     str.erase(str.length()-1);
-                
-                // if (ch_pred in rus)
-                //   str.erase(str.length()-1);
-                // Удаляем последний символ с экрана
-                move(y, x + str.length());
-                delch();
-                delch();
-                refresh();
+        wint_t ch;
+        wchar_t filename[256];
+        bool flag_Esc = false;
+        str = "";
+
+        while(true)
+        {
+            ch = getch();
+            if (ch == 27)
+            {
+                str = "";
+                flag_Esc = true;
+                break;
+            }
+
+            if (ch == KEY_BACKSPACE || ch == 127) // Backspace
+                continue;
+
+            else if (ch == 10)
+                break;
+
+            else
+            {   
+                addch(ch);
+                str += char(ch);
             }
         }
-        else
-        {    addch(ch);
-            str += char(ch);}
+        file_exist = file_checker(str);
+
+        if (flag_Esc == true)
+            break;
+
+        else if ((flag_Esc == false) && (file_exist == false))
+        {
+            printw("\nФайл с таким названием отсутствует\n\n");
+            refresh();
+            continue;
+        }
     }
+
     endwin();
-    cout << str;
     curs_set(0);            // выключение курсора
-    exit(0);
+    return str;
+}
+
+bool file_checker(string file_name)       // Функция проверки существования рабочего файла программы
+{                                         // Возвращает false, если файл с таким именем отсутствует
+    ifstream file;                        // И true, если файл был найден
+    file.open(file_name);
+    if (!file.is_open())
+        return false;
+    else
+    {
+        file.close();
+        return true;
+    }
 }
 
 void Menu_for_sorting()
 {
-    // string names[FIELDS];       // Инициализируем массив названий полей      ПОКА ОТКАЖЕМСЯ
-    // Меню фильтров
+    string file_name = choose_file_name_in();
+    if (file_name == "")
+        return;                                             // Выход по Esc
 
-
-    // парсинг файла
     columns* array = new columns[FIELDS];
-    int flag = file_parser(array, FIELDS, "Отчет_05.03.2026_19-14-19.txt");         // Считывание полей файла
+    int flag = file_parser(array, FIELDS, file_name);       // Считывание полей файла
     if (flag == -1)
     {
         printw("Ошибка чтения файла!");
@@ -184,20 +199,18 @@ void Menu_for_sorting()
 
     int field = choose_field(array, FIELDS);                // Выбор поля для сортировки
     if (field == -1)
-        return;
+        return;                                             // Выход по Esc
 
-    int type = type_sort();             // выбор типа сортировки (убывание/возрастание)
+    int type = type_sort();                                 // выбор типа сортировки (убывание/возрастание)
     if (type == -1)
-        return;
+        return;                                             // Выход по Esc
 
     regroup_array(field, array, FIELDS);
 
-    // debug_print(array, FIELDS);             // УДАЛИТЬ
-    int len = string_counter("Отчет_05.03.2026_19-14-19.txt")-1;        // УБРАТЬ ХАРДКОД
+    int len = string_counter(file_name)-1;
     quicksort(array, 0, len-1);
-    // debug_print(array, FIELDS);             // УДАЛИТЬ
 
-    file_creator(array, FIELDS, type);
+    file_creator(array, FIELDS, type, file_name);
 
     /////////// в конце нужно очистить память!
 }
@@ -226,10 +239,10 @@ int file_parser(columns* array, int SIZE, string file_name)         // Возв�
                 if ((pos != -1) && (i != SIZE-1))
                 {
                     string newstr = "";
-                    string str2 = str;          // Дубликат
+                    string str2 = str;                          // Дубликат
                     newstr = str.erase(pos, str.length()-pos);
                     str = str2.erase(0, pos);    
-                    str = del_space(str);       // Очистка строки от передних пробелов
+                    str = del_space(str);                       // Очистка строки от передних пробелов
                     if (j == 0)
                         array[i].column_name = newstr;          // Заполняем название поля
                     else
@@ -321,12 +334,12 @@ void debug_print(columns* array, int SIZE)
     initscr();
 }
 
-void file_creator(columns* array, int SIZE, int type)                     // Вывод в файл         // Добавить направление и ввод файла
+void file_creator(columns* array, int SIZE, int type, string file_name) // Вывод в файл         // Добавить направление и ввод файла
 {
-    int count = string_counter("Отчет_05.03.2026_19-14-19.txt");            // Убрать хардкод
-    string filename_out = "123456.txt";
+    int count = string_counter(file_name);          
+    string filename_out = "123456.txt";         // Убрать хардкод
 
-    add_whitespace(array);                              // "Причесываем" поля к для табличной записи (добавление пробелов)
+    add_whitespace(array, file_name);                              // "Причесываем" поля к для табличной записи (добавление пробелов)
     if (type == 0)
         record(array, count, SIZE, filename_out);
     else
@@ -377,8 +390,8 @@ void reverse_record(columns* array, int ROWS, int COLS, string filename_out)    
     file.close();
 }
 
-void add_whitespace(columns* array)              // Добавляет к каждой строке пробелы для табличного вывода в файл
-{           // Похорошему надо бы реализовать сверку поля, по-типу "ключ-значение"
+void add_whitespace(columns* array, string file_name)              // Добавляет к каждой строке пробелы для табличного вывода в файл
+{         
     for(int i=0; i<FIELDS; i++)
     {
         string name;
@@ -395,7 +408,7 @@ void add_whitespace(columns* array)              // Добавляет к каж
             array[i].column_name = "Кафедра                    ";
     }
 
-    int count = string_counter("Отчет_05.03.2026_19-14-19.txt");            // Убрать хардкод
+    int count = string_counter(file_name);            
     for(int i=0; i<FIELDS; i++)
     {
         for(int j=0; j< count-1; j++)
