@@ -7,7 +7,8 @@ struct columns
 {
     string column_name;
     string* ptr = nullptr;
-    int field_length = 0;
+    int* i_ptr = nullptr;
+    int field_length = 0;       ////////
 };
 
 void Menu(char* argv[])         // Главное меню программы
@@ -52,7 +53,7 @@ void Menu(char* argv[])         // Главное меню программы
             if (switcher == 3)
             {
                 endwin();
-                system("clear");
+                // system("clear");
                 exit(0);
             }
         }
@@ -197,6 +198,9 @@ void Menu_for_sorting()
         return;
     }
 
+    int len = string_counter(file_name)-1;
+    convert_to_numb(array, len);
+
     int field = choose_field(array, FIELDS);                // Выбор поля для сортировки
     if (field == -1)
         return;                                             // Выход по Esc
@@ -207,12 +211,12 @@ void Menu_for_sorting()
 
     regroup_array(field, array, FIELDS);
 
-    int len = string_counter(file_name)-1;
     quicksort(array, 0, len-1);
+    convert_to_str(array, len, FIELDS);
 
     file_creator(array, FIELDS, type, file_name);
 
-    /////////// в конце нужно очистить память!
+    free_memory(array, FIELDS);
 }
 
 int file_parser(columns* array, int SIZE, string file_name)         // Возвращает 1, если парсинг файла удался
@@ -286,6 +290,55 @@ int string_counter(string file_name)        // Функция подсчета �
     return count;
 }
 
+void convert_to_numb(columns* array, int len)
+{
+    for(int i=2; i<4; i++)
+    {
+        array[i].i_ptr = new int[len];
+        for(int j=0; j<len; j++)
+        {
+            string str = array[i].ptr[j];
+            if (str == "Нет данных")
+                array[i].i_ptr[j] = 99999;
+            else
+            {
+                try
+                {
+                    int number = stoi(str);
+                    array[i].i_ptr[j] = number;
+                }
+                catch(exception& e)
+                {
+                    array[i].i_ptr[j] = 99999;
+                    printf("Предупреждение! Элемент поля %s на %d строке вызывает некорректную обработку элемента!\n",
+                           array[i].column_name.c_str(), j+2);
+                }
+            }
+        }
+    }
+}
+
+void convert_to_str(columns* array, int len, int SIZE)
+{
+    for(int i=0; i<SIZE; i++)
+    {
+        if (array[i].i_ptr == nullptr)
+            continue;
+        else
+        {
+            for(int j=0; j<len; j++)
+            {
+                if (array[i].i_ptr[j] == 99999)
+                    array[i].ptr[j] = "Нет данных";
+                else
+                    array[i].ptr[j] = to_string(array[i].i_ptr[j]);
+            }
+            delete[] array[i].i_ptr;
+            array[i].i_ptr = nullptr;
+        }
+    }
+}
+
 string del_space(string str)      // Функция очистки строки от ненужных пробелов
 {
     bool flag = true;
@@ -337,7 +390,7 @@ void debug_print(columns* array, int SIZE)
 void file_creator(columns* array, int SIZE, int type, string file_name) // Вывод в файл         // Добавить направление и ввод файла
 {
     int count = string_counter(file_name);          
-    string filename_out = "123456.txt";         // Убрать хардкод
+    string filename_out = "99999.txt";         // Убрать хардкод
 
     add_whitespace(array, file_name);                              // "Причесываем" поля к для табличной записи (добавление пробелов)
     if (type == 0)
@@ -497,6 +550,7 @@ void regroup_array(int field, columns* array, int SIZE)            // Выпол
     columns temp;
     temp.column_name = array[field].column_name;
     temp.ptr = array[field].ptr;
+    temp.i_ptr = array[field].i_ptr;
 
     for(int i=field; i!=-1; i--)
     {
@@ -504,11 +558,13 @@ void regroup_array(int field, columns* array, int SIZE)            // Выпол
         {
             array[i].column_name = temp.column_name;
             array[i].ptr = temp.ptr;
+            array[i].i_ptr = temp.i_ptr;
         }
         else
         {
             array[i].column_name = array[i-1].column_name;
             array[i].ptr = array[i-1].ptr;
+            array[i].i_ptr = array[i-1].i_ptr;
         }
     }
 }
@@ -517,13 +573,22 @@ void swap(columns array[], int low, int high)                // Перестан
 {
     for(int i=0; i<FIELDS; i++)
     {
-        string temp = array[i].ptr[low];
-        array[i].ptr[low] = array[i].ptr[high];
-        array[i].ptr[high] = temp;
+        if (array[i].i_ptr == nullptr)
+        {
+            string temp = array[i].ptr[low];
+            array[i].ptr[low] = array[i].ptr[high];
+            array[i].ptr[high] = temp;
+        }
+        else
+        {
+            int temp = array[i].i_ptr[low];
+            array[i].i_ptr[low] = array[i].i_ptr[high];
+            array[i].i_ptr[high] = temp;
+        }
     }
 }
 
-int partition(columns array[], int low, int high, string pivot)          // Деление массива при выполнении сортировки
+int partition_str(columns array[], int low, int high, string pivot)          // Деление массива строк при выполнении сортировки
 {
     int i = low;
     int j = low;
@@ -542,15 +607,52 @@ int partition(columns array[], int low, int high, string pivot)          // Де
     return (j - 1);
 }
 
+int partition_int(columns array[], int low, int high, int pivot)          // Деление целочисл массива при выполнении сортировки
+{
+    int i = low;
+    int j = low;
+
+    while (i <= high)
+    {
+        if (array[0].i_ptr[i] > pivot)
+            i++;
+        else 
+        {
+            swap(array, i, j);
+            i++;
+            j++;
+        }
+    }
+    return (j - 1);
+}
+
 void quicksort(columns array[], int low, int high)
 {
     if (low < high)
     {
-        string pivot = array[0].ptr[high];
-        int pos = partition(array, low, high, pivot);
+        int pos = 0;
+        if (array[0].i_ptr == nullptr)
+        {
+            string pivot = array[0].ptr[high];
+            pos = partition_str(array, low, high, pivot);
+        }
+        else
+        {
+            int pivot = array[0].i_ptr[high];
+            pos = partition_int(array, low, high, pivot);
+        }
 
         quicksort(array, low, pos-1);
         quicksort(array, pos+1, high);
+    }
+}
+
+void free_memory(columns* array, int SIZE)
+{
+    for(int i=0; i<SIZE; i++)
+    {
+        delete[] array[i].ptr;
+        array[i].ptr = nullptr;
     }
 }
 

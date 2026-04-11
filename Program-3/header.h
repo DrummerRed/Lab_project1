@@ -24,6 +24,8 @@ string get_filename();
 bool file_checker(string filename);       // Функция проверки существования рабочего файла программы
 int file_parser(columns* array, int SIZE, string file_name);
 int string_counter(string file_name);
+void convert_to_numb(columns* array, int len);
+void convert_to_str(columns* array, int len, int SIZE);
 string del_space(string str);
 string inverse_del_space(string str);
 
@@ -32,7 +34,8 @@ int type_sort();
 void regroup_array(int field, columns* array, int SIZE);
 
 void swap(columns array[], int low, int high);                            // Перестановка элементов массива
-int partition(columns array[], int low, int high, string pivot);          // Деление массива при выполнении сортировки
+int partition_str(columns array[], int low, int high, string pivot);          // Деление массива при выполнении сортировки
+int partition_int(columns array[], int low, int high, int pivot);          // Деление целочисл массива при выполнении сортировки
 void quicksort(columns array[], int low, int high);
 
 void file_creator(columns* array, int SIZE, int type, string file_name);                     // Вывод в файл
@@ -40,5 +43,7 @@ void interface_for_file_creator(string filename);
 void add_whitespace(columns* array, string file_name);              // Добавляет к каждой строке пробелы для табличного вывода в файл
 void record(columns* array, int ROWS, int COLS, string filename_out);                // Вывод сортировки по возрастанию
 void reverse_record(columns* array, int ROWS, int COLS, string filename_out);                // Вывод сортировки по убыванию
+
+void free_memory(columns* array, int SIZE);
 
 void debug_print(columns* array, int SIZE);          // удалить
