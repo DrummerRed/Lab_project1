@@ -20,7 +20,8 @@ void Help();                    // Функция работы пункта ме
 
 void Menu_for_sorting();
 string choose_file_name_in();
-string get_filename();
+string input_file(bool* flag_Esc);
+//string get_filename();
 bool file_checker(string filename);       // Функция проверки существования рабочего файла программы
 int file_parser(columns* array, int SIZE, string file_name);
 int string_counter(string file_name);
@@ -28,6 +29,7 @@ void convert_to_numb(columns* array, int len);
 void convert_to_str(columns* array, int len, int SIZE);
 string del_space(string str);
 string inverse_del_space(string str);
+string choose_file_name_out();
 
 int choose_field(columns* array, int SIZE);
 int type_sort();

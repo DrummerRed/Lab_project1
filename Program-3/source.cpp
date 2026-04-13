@@ -2,6 +2,7 @@
 
 const string HELP = "help.txt";     // Название файла для вкладки "Помощь"
 const int FIELDS = 5;               // Количество полей
+const int NO_DATA = 99999;
 
 struct columns
 {
@@ -126,33 +127,8 @@ string choose_file_name_in()                            // Обработка и
         printw("Введите название файла: ");
         refresh();
 
-        wint_t ch;
-        wchar_t filename[256];
         bool flag_Esc = false;
-        str = "";
-
-        while(true)
-        {
-            ch = getch();
-            if (ch == 27)
-            {
-                str = "";
-                flag_Esc = true;
-                break;
-            }
-
-            if (ch == KEY_BACKSPACE || ch == 127) // Backspace
-                continue;
-
-            else if (ch == 10)
-                break;
-
-            else
-            {   
-                addch(ch);
-                str += char(ch);
-            }
-        }
+        str = input_file(&flag_Esc);
         file_exist = file_checker(str);
 
         if (flag_Esc == true)
@@ -168,6 +144,37 @@ string choose_file_name_in()                            // Обработка и
 
     endwin();
     curs_set(0);            // выключение курсора
+    return str;
+}
+
+string input_file(bool* flag_Esc)                   // Ввод названия файла с клавиатуры
+{                                                   // Возвращает имя файла при корректном вводе
+    wint_t ch;                                      // Либо пустую строку при нажатии Esc
+    wchar_t filename[256];
+    string str = "";
+
+    while(true)
+    {
+        ch = getch();
+        if (ch == 27)
+        {
+            str = "";
+            *flag_Esc = true;
+            break;
+        }
+
+        else if (ch == KEY_BACKSPACE || ch == 127) // Backspace
+            continue;
+
+        else if (ch == 10)
+            break;
+
+        else
+        {   
+            addch(ch);
+            str += char(ch);
+        }
+    }
     return str;
 }
 
@@ -299,7 +306,7 @@ void convert_to_numb(columns* array, int len)
         {
             string str = array[i].ptr[j];
             if (str == "Нет данных")
-                array[i].i_ptr[j] = 99999;
+                array[i].i_ptr[j] = NO_DATA;
             else
             {
                 try
@@ -309,7 +316,7 @@ void convert_to_numb(columns* array, int len)
                 }
                 catch(exception& e)
                 {
-                    array[i].i_ptr[j] = 99999;
+                    array[i].i_ptr[j] = NO_DATA;
                     printf("Предупреждение! Элемент поля %s на %d строке вызывает некорректную обработку элемента!\n",
                            array[i].column_name.c_str(), j+2);
                 }
@@ -328,7 +335,7 @@ void convert_to_str(columns* array, int len, int SIZE)
         {
             for(int j=0; j<len; j++)
             {
-                if (array[i].i_ptr[j] == 99999)
+                if (array[i].i_ptr[j] == NO_DATA)
                     array[i].ptr[j] = "Нет данных";
                 else
                     array[i].ptr[j] = to_string(array[i].i_ptr[j]);
@@ -390,7 +397,9 @@ void debug_print(columns* array, int SIZE)
 void file_creator(columns* array, int SIZE, int type, string file_name) // Вывод в файл         // Добавить направление и ввод файла
 {
     int count = string_counter(file_name);          
-    string filename_out = "99999.txt";         // Убрать хардкод
+    string filename_out = choose_file_name_out();         // Убрать хардкод
+    if (filename_out == "")
+        return;                                 // Выход по Esc
 
     add_whitespace(array, file_name);                              // "Причесываем" поля к для табличной записи (добавление пробелов)
     if (type == 0)
@@ -400,6 +409,55 @@ void file_creator(columns* array, int SIZE, int type, string file_name) // Вы�
 
     interface_for_file_creator(filename_out);
 }
+
+string choose_file_name_out()                           // Обработка имени выходного файла
+{                                                       // Возвращает имя файла при корректном вводе
+    string str;                                         // Либо пустую строку при выходе из режима
+
+    clear();
+    printw("Для возврата в меню нажмите Esc\n");
+    printw("-------------------------------\n\n");
+    refresh();
+    noecho();
+    curs_set(1);            // включение курсора
+    
+    string elem = ".txt\n";
+    bool elem_exist = false;
+    bool flag_Esc = false;
+    while(!elem_exist)
+    {
+        printw("Введите название файла: ");
+        refresh();
+
+        str = input_file(&flag_Esc);
+        str += "\n";
+
+        if (flag_Esc == true)
+            break;
+
+        else if ((flag_Esc == false) && (str.find(elem) == -1))
+        {
+            printw("\nНазвание файла должно содержать расширение .txt\n\n");
+            refresh();
+            continue;
+        }
+
+        else if (str.find(elem) != -1)
+            elem_exist = true;
+    }
+    if (elem_exist == true)
+        str.erase(str.find("\n"));
+
+    endwin();
+    curs_set(0);            // выключение курсора
+    return str;
+}
+
+// string output_file()
+// {
+//     string str;
+
+// }
 
 void record(columns* array, int ROWS, int COLS, string filename_out)                // Вывод сортировки по возрастанию
 {
