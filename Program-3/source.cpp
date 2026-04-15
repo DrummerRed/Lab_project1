@@ -178,6 +178,55 @@ string input_file(bool* flag_Esc)                   // Ввод названия
     return str;
 }
 
+// string choose_file_name_in()                            // Обработка имени входного файла
+// {                                                       // Возвращает имя файла при корректном вводе
+//     string str;                                         // Либо пустую строку при выходе из режима
+//     clear();
+//     def_prog_mode();   // Сохраняем режим ncurses
+//     endwin();          // Временно выключаем ncurses
+//     system("clear");
+//     printf("Для возврата в меню нажмите сочетание клавиш Esc + Enter\n");
+//     printf("--------------------------------------------------------\n\n");
+    
+//     bool file_exist = false;
+//     while(!file_exist)
+//     {
+//         printf("Введите название файла: ");
+
+//         bool flag_Esc = false;
+//         str = input_file();
+//         file_exist = file_checker(str);
+
+//         if (flag_Esc == true)
+//             break;
+
+//         else if ((flag_Esc == false) && (file_exist == false))
+//         {
+//             printf("\nФайл с таким названием отсутствует\n\n");
+//             continue;
+//         }
+//     }
+
+//     reset_prog_mode(); // Восстанавливаем режим
+//     refresh();
+//     return str;
+// }
+
+// string input_file()
+// {
+//     def_prog_mode();   // Сохраняем режим ncurses
+//     endwin();          // Временно выключаем ncurses
+//     char str[100];
+//     string final_str = "";
+
+//     scanf("%s", str);
+//     final_str = str;
+
+//     reset_prog_mode(); // Восстанавливаем режим
+//     refresh();
+//     return str;
+// }
+
 bool file_checker(string file_name)       // Функция проверки существования рабочего файла программы
 {                                         // Возвращает false, если файл с таким именем отсутствует
     ifstream file;                        // И true, если файл был найден
@@ -430,12 +479,12 @@ string choose_file_name_out()                           // Обработка и
         refresh();
 
         str = input_file(&flag_Esc);
-        str += "\n";
 
         if (flag_Esc == true)
             break;
 
-        else if ((flag_Esc == false) && (str.find(elem) == -1))
+        str += "\n";
+        if ((flag_Esc == false) && (str.find(elem) == -1))
         {
             printw("\nНазвание файла должно содержать расширение .txt\n\n");
             refresh();
@@ -472,6 +521,11 @@ void record(columns* array, int ROWS, int COLS, string filename_out)            
             else
             {
                 int count = 27;
+                if (array[j].column_name == "Кафедра                    ")
+                {
+                    if (cathedra_checker(array[j].ptr[i]))
+                        count += 1;
+                }
                 file << setw(count) << left << array[j].ptr[i];
             }
         }
@@ -493,6 +547,11 @@ void reverse_record(columns* array, int ROWS, int COLS, string filename_out)    
             else
             {
                 int count = 27;
+                if (array[j].column_name == "Кафедра                    ")
+                {
+                    if (cathedra_checker(array[j].ptr[i]))
+                        count += 1;
+                }
                 file << setw(count) << left << array[j].ptr[i];
             }
         }
@@ -735,4 +794,19 @@ void interface_for_file_creator(string filename)        // Интерфейс з
     {
         ch = getch();
     }
+}
+
+bool cathedra_checker(string cathedra)                  // Проверка поля Кафедра на наличие буквенных символов
+{
+    if (cathedra == "Нет данных                 ")
+        return false;
+
+    string tmp = "0123456789";
+    int lenght = cathedra.length();
+    for(int i=0; i<lenght; i++)
+    {
+        if (tmp.find(cathedra[i]) == -1)
+            return true;
+    }
+    return false;
 }

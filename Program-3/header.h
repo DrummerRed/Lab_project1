@@ -43,6 +43,7 @@ void quicksort(columns array[], int low, int high);
 void file_creator(columns* array, int SIZE, int type, string file_name);                     // Вывод в файл
 void interface_for_file_creator(string filename);
 void add_whitespace(columns* array, string file_name);              // Добавляет к каждой строке пробелы для табличного вывода в файл
+bool cathedra_checker(string cathedra);
 void record(columns* array, int ROWS, int COLS, string filename_out);                // Вывод сортировки по возрастанию
 void reverse_record(columns* array, int ROWS, int COLS, string filename_out);                // Вывод сортировки по убыванию
 
