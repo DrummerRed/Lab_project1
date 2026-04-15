@@ -398,8 +398,14 @@ void debug_print(columns* array, int SIZE)
 
 void file_creator(columns* array, int SIZE, int type, string field_name, string file_name) // Вывод в файл         // Добавить направление и ввод файла
 {
-    int count = string_counter(file_name);          
-    string filename_out = choose_file_name_out222();         // Убрать хардкод
+    int count = string_counter(file_name);     
+    // string filename_out = choose_file_name_out();                        // ВАРИАНТ 1
+    // string filename_out = choose_file_name_out222();                     // ВАРИАНТ 2
+
+    string filename_out = file_name;                                        // ВАРИАНТ 3
+    filename_out.erase(filename_out.find(".txt"), 4);                          
+    filename_out += "-отсортированный.txt";
+
     if (filename_out == "")
         return;                                 // Выход по Esc
 
