@@ -31,6 +31,12 @@ string del_space(string str);
 string inverse_del_space(string str);
 string choose_file_name_out();
 
+string choose_file_name_out222();
+string scan_file_name();    // Функция, считывающая марку ЭВМ с консоли
+void clear_buffer(string* buffer);       // Функция очистки буфера
+int find_esc(string mark);
+int symb(string cathedra);
+
 int choose_field(columns* array, int SIZE);
 int type_sort();
 void regroup_array(int field, columns* array, int SIZE);
@@ -40,12 +46,12 @@ int partition_str(columns array[], int low, int high, string pivot);          //
 int partition_int(columns array[], int low, int high, int pivot);          // Деление целочисл массива при выполнении сортировки
 void quicksort(columns array[], int low, int high);
 
-void file_creator(columns* array, int SIZE, int type, string file_name);                     // Вывод в файл
+void file_creator(columns* array, int SIZE, int type, string field_name, string file_name);                     // Вывод в файл
 void interface_for_file_creator(string filename);
 void add_whitespace(columns* array, string file_name);              // Добавляет к каждой строке пробелы для табличного вывода в файл
 bool cathedra_checker(string cathedra);
-void record(columns* array, int ROWS, int COLS, string filename_out);                // Вывод сортировки по возрастанию
-void reverse_record(columns* array, int ROWS, int COLS, string filename_out);                // Вывод сортировки по убыванию
+void record(columns* array, int ROWS, int COLS, string field_name, string filename_out);                // Вывод сортировки по возрастанию
+void reverse_record(columns* array, int ROWS, int COLS, string field_name, string filename_out);                // Вывод сортировки по убыванию
 
 void free_memory(columns* array, int SIZE);
 

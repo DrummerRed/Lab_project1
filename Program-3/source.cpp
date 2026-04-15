@@ -178,55 +178,6 @@ string input_file(bool* flag_Esc)                   // Ввод названия
     return str;
 }
 
-// string choose_file_name_in()                            // Обработка имени входного файла
-// {                                                       // Возвращает имя файла при корректном вводе
-//     string str;                                         // Либо пустую строку при выходе из режима
-//     clear();
-//     def_prog_mode();   // Сохраняем режим ncurses
-//     endwin();          // Временно выключаем ncurses
-//     system("clear");
-//     printf("Для возврата в меню нажмите сочетание клавиш Esc + Enter\n");
-//     printf("--------------------------------------------------------\n\n");
-    
-//     bool file_exist = false;
-//     while(!file_exist)
-//     {
-//         printf("Введите название файла: ");
-
-//         bool flag_Esc = false;
-//         str = input_file();
-//         file_exist = file_checker(str);
-
-//         if (flag_Esc == true)
-//             break;
-
-//         else if ((flag_Esc == false) && (file_exist == false))
-//         {
-//             printf("\nФайл с таким названием отсутствует\n\n");
-//             continue;
-//         }
-//     }
-
-//     reset_prog_mode(); // Восстанавливаем режим
-//     refresh();
-//     return str;
-// }
-
-// string input_file()
-// {
-//     def_prog_mode();   // Сохраняем режим ncurses
-//     endwin();          // Временно выключаем ncurses
-//     char str[100];
-//     string final_str = "";
-
-//     scanf("%s", str);
-//     final_str = str;
-
-//     reset_prog_mode(); // Восстанавливаем режим
-//     refresh();
-//     return str;
-// }
-
 bool file_checker(string file_name)       // Функция проверки существования рабочего файла программы
 {                                         // Возвращает false, если файл с таким именем отсутствует
     ifstream file;                        // И true, если файл был найден
@@ -261,6 +212,8 @@ void Menu_for_sorting()
     if (field == -1)
         return;                                             // Выход по Esc
 
+    string field_name = array[field].column_name;
+
     int type = type_sort();                                 // выбор типа сортировки (убывание/возрастание)
     if (type == -1)
         return;                                             // Выход по Esc
@@ -270,7 +223,7 @@ void Menu_for_sorting()
     quicksort(array, 0, len-1);
     convert_to_str(array, len, FIELDS);
 
-    file_creator(array, FIELDS, type, file_name);
+    file_creator(array, FIELDS, type, field_name, file_name);
 
     free_memory(array, FIELDS);
 }
@@ -443,23 +396,23 @@ void debug_print(columns* array, int SIZE)
     initscr();
 }
 
-void file_creator(columns* array, int SIZE, int type, string file_name) // Вывод в файл         // Добавить направление и ввод файла
+void file_creator(columns* array, int SIZE, int type, string field_name, string file_name) // Вывод в файл         // Добавить направление и ввод файла
 {
     int count = string_counter(file_name);          
-    string filename_out = choose_file_name_out();         // Убрать хардкод
+    string filename_out = choose_file_name_out222();         // Убрать хардкод
     if (filename_out == "")
         return;                                 // Выход по Esc
 
     add_whitespace(array, file_name);                              // "Причесываем" поля к для табличной записи (добавление пробелов)
     if (type == 0)
-        record(array, count, SIZE, filename_out);
+        record(array, count, SIZE, field_name, filename_out);
     else
-        reverse_record(array, count, SIZE, filename_out);
+        reverse_record(array, count, SIZE, field_name, filename_out);
 
     interface_for_file_creator(filename_out);
 }
 
-string choose_file_name_out()                           // Обработка имени выходного файла
+string choose_file_name_out()   //ВАРИАНТ 1                        // Обработка имени выходного файла
 {                                                       // Возвращает имя файла при корректном вводе
     string str;                                         // Либо пустую строку при выходе из режима
 
@@ -502,16 +455,121 @@ string choose_file_name_out()                           // Обработка и
     return str;
 }
 
-// string output_file()
-// {
-//     string str;
+string choose_file_name_out222()    // ВАРИАНТ 2
+{
+    string file_name;
+    clear();
+    curs_set(1);                        // выключение курсора
+    def_prog_mode();                    // Сохраняем режим ncurses
+    endwin();                           // Временно выключаем ncurses
+    system("clear");                    // Очищаем экран
 
-// }
+    printf("Для выхода в меню зажмите сочетание клавиш \"Esc\"+\"Enter\"\n");
+    printf("--------------------------------------------------------\n\n");
 
-void record(columns* array, int ROWS, int COLS, string filename_out)                // Вывод сортировки по возрастанию
+    string elem = ".txt\n";
+    bool elem_exist = false;
+    while(!elem_exist)
+    {
+        printf("Введите название файла: ");
+
+        file_name = scan_file_name();
+
+        if (file_name == "")            // Выход по Esc
+            break;
+
+        if (file_name.find(elem) == -1)
+        {
+            printf("\nНазвание файла должно содержать расширение .txt\n\n");
+            continue;
+        }
+
+        else if (file_name.find(elem) != -1)
+            elem_exist = true;
+    }
+    if (elem_exist == true)
+        file_name.erase(file_name.find("\n"));    
+
+    system("clear");
+    reset_prog_mode();      // Восстанавливаем режим ncurses
+    curs_set(0);            // выключение курсора
+    refresh();
+    return file_name;
+}
+
+string scan_file_name()    // Функция, считывающая марку ЭВМ с консоли 
+{                                                            
+    while(true)                                                 
+    {    
+        const int SIZE = 30;
+        
+        bool error_flag = false; 
+        string checker = "";
+        char local_mark[SIZE] = "";             ////
+        int i = 0;
+        while((local_mark[i] = getchar()) != '\n')
+        {
+            checker+=local_mark;
+            i++;
+            if (i == SIZE-1)            // Очищаем буфер при превышении допустимого количества введенных символов
+            {
+                error_flag = true;
+                clear_buffer(&checker);         // При очистке записываем символы из буфера в переменную checker
+                break;
+            }
+        }
+
+        if (find_esc(checker) == 0)         // Проверка на принудительный выход по Esc
+            return "";
+
+        if (symb(local_mark) == 0)      // Проверка на корректность символов
+        {
+            printf("Ошибка ввода! Недопустимые символы!\n");
+            continue;
+        }
+
+        if ((local_mark[0] == '\n') || (local_mark[0] == ' '))      // Проверка на пустую строку
+        {
+            printf("Ошибка ввода! Введена пустая строка!\n");
+            continue;
+        }
+        else
+            return local_mark;
+    }
+}
+
+int symb(string cathedra)      // Функция проверки символов поля "Кафедра"
+{                                       // Возвращает 1, если введены корректные символы. Иначе 0
+    string rus_high = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧЩЫЭЮЯ";
+    string rus_low = "абвгдеёжзийклмнопрстуфхцчщыэюя";
+    string eng_high = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    string eng_low = "abcdefghijklmnopqrstuvwxyz";
+    string numbers = "0123456789-. ";
+    int invalid_symb = 1; 
+    cathedra += "\n";
+    if ((cathedra == "=\n") || (cathedra == "=\n\n"))       // Проверка на ввод отсутствующей информации
+        return invalid_symb;
+
+    for (int i=0; (cathedra[i] != '\n'); i++)
+    {
+        if ((rus_high.find(cathedra[i]) == -1) &&
+            (rus_low.find(cathedra[i]) == -1) &&
+            (eng_high.find(cathedra[i]) == -1) &&
+            (eng_low.find(cathedra[i]) == -1) &&
+            (numbers.find(cathedra[i]) == -1))
+        {
+            invalid_symb = 0;
+            break;
+        }
+    }
+    return invalid_symb;
+}
+
+void record(columns* array, int ROWS, int COLS, string field_name, string filename_out)                // Вывод сортировки по возрастанию
 {
     ofstream file;
     file.open(filename_out);
+    file << "Файл отсортирован по полю: " << field_name << ". Направление: по возрастанию" << endl << endl;
     for(int i=-1; i<ROWS-1; i++)             
     {
         for(int j=0; j<COLS; j++)
@@ -534,10 +592,11 @@ void record(columns* array, int ROWS, int COLS, string filename_out)            
     file.close();
 }
 
-void reverse_record(columns* array, int ROWS, int COLS, string filename_out)                // Вывод сортировки по убыванию
+void reverse_record(columns* array, int ROWS, int COLS, string field_name, string filename_out)                // Вывод сортировки по убыванию
 {
     ofstream file;
     file.open(filename_out);
+    file << "Файл отсортирован по полю: " << field_name << ". Направление: по убыванию" << endl << endl;
     for(int i=ROWS-1; i>-1; i--)             
     {
         for(int j=0; j<COLS; j++)
@@ -809,4 +868,29 @@ bool cathedra_checker(string cathedra)                  // Проверка по
             return true;
     }
     return false;
+}
+
+int find_esc(string mark)      // Функция проверки нажатия esc
+{                              // Возвращает 0, если esc найден. Иначе 1
+    int invalid_symb = 1; 
+    mark += "\n";
+    for (int i=0; (mark[i] != '\n'); i++)
+    {
+        if (mark[i] == 27)
+        {
+            invalid_symb = 0;
+            break;
+        }
+    }
+    return invalid_symb;
+}
+
+void clear_buffer(string* buffer)       // Функция очистки буфера
+{
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) 
+    {
+        if (buffer != nullptr)      // Проверка передаваемого параметра
+            *buffer += (char)c;     // Записываем символы из буфера в параметр buffer
+    }
 }
