@@ -575,7 +575,7 @@ void record(columns* array, int ROWS, int COLS, string field_name, string filena
 {
     ofstream file;
     file.open(filename_out);
-    file << "Файл отсортирован по полю: " << field_name << ". Направление: по возрастанию" << endl << endl;
+    file << "Файл отсортирован по полю: " << field_name << ". Направление: по возрастанию." << endl << endl;
     for(int i=-1; i<ROWS-1; i++)             
     {
         for(int j=0; j<COLS; j++)
