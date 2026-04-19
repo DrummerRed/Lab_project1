@@ -3,22 +3,22 @@
 const string HELP = "help.txt";     // Название файла для вкладки "Помощь"
 const string ECM = "ECM.csv";   // Название первого файла
 const string ECM_CONF = "ECM_configuration.csv";    // Название второго файла
-const int SIZE = 20;
+const int SIZE = 20;        // Для вводимых строк
 
-struct cathedra_counts
+struct cathedra_counts      // Структура для подсчета уникальных значений кафедр
 {
     string cathedra;
     int count = 0;
 };
 
-struct data_from_file
+struct data_from_file       // Структура полей рабочих файлов
 {
     string mark;
     string field_1;             // serial_number (Файл эвм) или terminals (Файл конфигураций)
     string field_2;             // cathedra (файл эвм) или storage_device (Файл конфигураций)
 };
 
-void Menu(char* argv[])
+void Menu(char* argv[])         // Главное меню программы
 {
     initscr();
     cbreak();
@@ -76,7 +76,7 @@ void Menu(char* argv[])
     endwin();
 }
 
-void interface(int choice)
+void interface(int choice)      // Отрисовка интерфейса главного меню программы
 {
     switch(choice)
     {
@@ -95,7 +95,7 @@ void interface(int choice)
     }
 }
 
-void Help()
+void Help()             // Функция работы пункта меню "Помощь"
 {
     def_prog_mode();   // Сохраняем режим ncurses
     endwin();          // Временно выключаем ncurses
@@ -106,7 +106,7 @@ void Help()
 
     if (file == NULL)
     {
-        printf("Ошибка чтения файла!\n");
+        printf("Ошибка 47: Не удалось считать файл инструкций!\n");
         exit(0);
     }
     int symb;
@@ -127,7 +127,7 @@ void Help()
     }
 }
 
-void file_checker(bool* file_ECM_exist, bool* file_ECM_CONF_exist)       // Функция проверки файлов
+void file_checker(bool* file_ECM_exist, bool* file_ECM_CONF_exist)       // Функция проверки существования рабочих файлов программы
 {
     FILE * file_ECM = fopen(ECM.c_str(), "r");
     if (file_ECM == NULL)
@@ -148,14 +148,15 @@ void file_checker(bool* file_ECM_exist, bool* file_ECM_CONF_exist)       // Фу
     }
 }
 
-void files_info(bool* files_ECM_exist, bool* file_ECM_CONF_exist, char* argv[])
+void files_info(bool* files_ECM_exist, bool* file_ECM_CONF_exist, char* argv[])     // Функция вывода информации о наличии/отсутствии рабочих файлов
 {
     bool flag_exit = false;
     while (flag_exit == false)
     {
         file_checker(files_ECM_exist, file_ECM_CONF_exist);
         clear();
-        printw("Информация о файлах\n======================================\n\n");
+        printw("Информация о файлах\n");
+        printw("===================\n\n");
         char absolute_path[PATH_MAX];
         bool error_flag = false;
         string dir_name = "";
@@ -174,7 +175,7 @@ void files_info(bool* files_ECM_exist, bool* file_ECM_CONF_exist, char* argv[])
                 }
             }
             else 
-                error_flag = true;      //Ошибка чтения названия скомпелированного файла
+                error_flag = true;      // Ошибка чтения названия скомпелированного файла
 
         if ((*files_ECM_exist == false) && (*file_ECM_CONF_exist == false))
         {
@@ -222,7 +223,7 @@ void files_info(bool* files_ECM_exist, bool* file_ECM_CONF_exist, char* argv[])
     }
 }
 
-void files_is_found()
+void files_is_found()       // Функция вывода описания рабочих файлов программы
 {
     printw("Нажмите Enter, чтобы обновить данные после загрузки новых файлов.\n\n");
     printw("Все рабочие файлы были успешно загружены.\n\n");
@@ -248,7 +249,7 @@ void files_is_found()
         printw("Ошибка чтения файла %s !\n", ECM_CONF.c_str());
 }
 
-void Menu_for_viewing(bool* files_ECM_exist, bool* file_ECM_CONF_exist)         // Меню просмотра файлов
+void Menu_for_viewing(bool* files_ECM_exist, bool* file_ECM_CONF_exist)         // Функция работы пункта меню "Просмотр записей"
 {
     if ((*files_ECM_exist == false) || (*file_ECM_CONF_exist == false))
         while(true)
@@ -300,7 +301,7 @@ void Menu_for_viewing(bool* files_ECM_exist, bool* file_ECM_CONF_exist)         
     }
 }
 
-void interface_for_viewing(int choice)
+void interface_for_viewing(int choice)          // Функция отрисовки интерфейса для пункта меню "Просмотр записей"
 {
     printw("Для возвращения в меню нажмите Esc \n");
     printw("---------------------------------- \n\n");
@@ -338,11 +339,11 @@ void file_viewer_to_screen()            // Режим вывода данных 
 
     const int COUNT_ECM = counter1 - 1;
     data_from_file data_ECM[COUNT_ECM];      // Данные из файла ЭВМ
-    file_reader(data_ECM, COUNT_ECM, ECM);
+    file_reader(data_ECM, COUNT_ECM, ECM);      // Считываем данные в массив
 
     const int COUNT_ECM_CONF = counter2 - 1;
     data_from_file data_ECM_CONF[COUNT_ECM_CONF];       // Данные из файла конфигураций
-    file_reader(data_ECM_CONF, COUNT_ECM_CONF, ECM_CONF);
+    file_reader(data_ECM_CONF, COUNT_ECM_CONF, ECM_CONF);       // Считываем данные в массив
 
     input_cathedra(data_ECM, data_ECM_CONF, COUNT_ECM, COUNT_ECM_CONF);
 }
@@ -359,14 +360,14 @@ void file_viewer_to_file()            // Режим вывода данных в
 
     const int COUNT_ECM = counter1 - 1;
     data_from_file data_ECM[COUNT_ECM];      // Данные из файла ЭВМ
-    file_reader(data_ECM, COUNT_ECM, ECM);
+    file_reader(data_ECM, COUNT_ECM, ECM);      // Считываем данные в массив
 
     const int COUNT_ECM_CONF = counter2 - 1;
     data_from_file data_ECM_CONF[COUNT_ECM_CONF];       // Данные из файла конфигураций
-    file_reader(data_ECM_CONF, COUNT_ECM_CONF, ECM_CONF);
+    file_reader(data_ECM_CONF, COUNT_ECM_CONF, ECM_CONF);       // Считываем данные в массив
 
     cathedra_counts array_of_cathedras[COUNT_ECM];      // Массив уникальных кафедр (и их количество)
-    cathedras_counter(data_ECM, array_of_cathedras, COUNT_ECM);                                                            
+    cathedras_counter(data_ECM, array_of_cathedras, COUNT_ECM);     // Считываем данные в массив                                                   
 
     file_creator(data_ECM, data_ECM_CONF, array_of_cathedras, COUNT_ECM, COUNT_ECM_CONF);
 }
@@ -474,7 +475,7 @@ void file_reader(data_from_file* array, int SIZE, string filename)      // Фу�
     file.close();
 }
 
-void test_func(data_from_file* data_ECM, int SIZE)
+void test_func(data_from_file* data_ECM, int SIZE)          // Отладочная функция 1
 {
     endwin();
     for (int i = 0; i<SIZE; i++)
@@ -485,7 +486,7 @@ void test_func(data_from_file* data_ECM, int SIZE)
     sleep(100);
 }
 
-void test_func2(cathedra_counts* data_ECM, int SIZE)
+void test_func2(cathedra_counts* data_ECM, int SIZE)        // Отладочная функция 2
 {
     endwin();
     for (int i = 0; i<SIZE; i++)
@@ -732,19 +733,24 @@ void file_creator(data_from_file* ECM_array, data_from_file* ECM_CONF_array, cat
     
     for (int i=0; i<SIZE1; i++)
     {
+        if (i == 0)
+            file << setw(27) << left << "Марка ЭВМ" << setw(27 + 12) << left << "Заводской номер" 
+                << setw(27 + 15) << left << "Кол-во терминалов" << setw(27 + 1) << left << "Кол-во ВЗУ" 
+                << setw(27 + 2) << left << "Кафедра" << endl;
+
         string cathedra;
         if ((array_of_cathedras[i].cathedra != "") && (array_of_cathedras[i].cathedra != "="))
         {
             cathedra = array_of_cathedras[i].cathedra;
-            file << "Кафедра: " << cathedra << endl;
-            file << setw(27) << left << "Марка ЭВМ" << setw(27 + 12) << left << "Заводской номер" 
-                << setw(27 + 15) << left << "Кол-во терминалов" << setw(27) << left << "Кол-во ВЗУ" << endl;
+            // file << "Кафедра: " << cathedra << endl;
+            // file << setw(27) << left << "Марка ЭВМ" << setw(27 + 12) << left << "Заводской номер" 
+            //     << setw(27 + 15) << left << "Кол-во терминалов" << setw(27) << left << "Кол-во ВЗУ" << endl;
             for (int i=0; i<SIZE1; i++)
             {   
                 string mark;
                 string serial_number = "Нет данных               ";
                 string terminals = "Нет данных                 ";
-                string storage_device = "Нет данных";
+                string storage_device = "Нет данных          ";
 
                 if (ECM_array[i].field_2 == cathedra)
                 {
@@ -764,10 +770,11 @@ void file_creator(data_from_file* ECM_array, data_from_file* ECM_CONF_array, cat
                     }
 
                     file << setw(19) << left << mark << setw(19 + 6) << left << serial_number 
-                        << setw(19 + 17 - 9) << left << terminals << setw(19) << left << storage_device << endl;
+                        << setw(19 + 17 - 9) << left << terminals << setw(19 + 1) << left << storage_device 
+                        << setw(19) << left << cathedra << endl;
                 }
             }
-            file << "\n";
+            // file << "\n";
         }
     }
 

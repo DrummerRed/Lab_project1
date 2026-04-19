@@ -20,6 +20,7 @@ void Help();                    // Функция работы пункта ме
 
 void Menu_for_sorting();
 string choose_file_name_in();
+string choose_file_name_in222();            //2 версия
 string input_file(bool* flag_Esc);
 //string get_filename();
 bool file_checker(string filename);       // Функция проверки существования рабочего файла программы
@@ -33,6 +34,7 @@ string choose_file_name_out();
 
 string choose_file_name_out222();
 string scan_file_name();    // Функция, считывающая марку ЭВМ с консоли
+string scan_file_name_222();
 void clear_buffer(string* buffer);       // Функция очистки буфера
 int find_esc(string mark);
 int symb(string cathedra);

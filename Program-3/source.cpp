@@ -9,7 +9,7 @@ struct columns
     string column_name;
     string* ptr = nullptr;
     int* i_ptr = nullptr;
-    int field_length = 0;       ////////
+    // int field_length = 0;       ////////
 };
 
 void Menu(char* argv[])         // Главное меню программы
@@ -89,7 +89,7 @@ void Help()             // Функция работы пункта меню "П
 
     if (file == NULL)
     {
-        printf("Ошибка 47: Не удалось считать файл инструкций!\n");
+        printf("Ошибка: не удалось считать файл инструкций!\n");
         exit(0);
     }
     int symb;
@@ -110,71 +110,114 @@ void Help()             // Функция работы пункта меню "П
     }
 }
 
-string choose_file_name_in()                            // Обработка имени входного файла
-{                                                       // Возвращает имя файла при корректном вводе
-    string str;                                         // Либо пустую строку при выходе из режима
+// string choose_file_name_in()      // Вариант 1          // Обработка имени входного файла
+// {                                                       // Возвращает имя файла при корректном вводе
+//     string str;                                         // Либо пустую строку при выходе из режима
+
+//     clear();
+//     printw("Для возврата в меню нажмите Esc\n");
+//     printw("-------------------------------\n\n");
+//     refresh();
+//     noecho();
+//     curs_set(1);            // включение курсора
+    
+//     bool file_exist = false;
+//     while(!file_exist)
+//     {
+//         printw("Введите название файла: ");
+//         refresh();
+
+//         bool flag_Esc = false;
+//         str = input_file(&flag_Esc);
+//         file_exist = file_checker(str);
+
+//         if (flag_Esc == true)
+//             break;
+
+//         else if ((flag_Esc == false) && (file_exist == false))
+//         {
+//             printw("\nФайл с таким названием отсутствует\n\n");
+//             refresh();
+//             continue;
+//         }
+//     }
+
+//     endwin();
+//     curs_set(0);            // выключение курсора
+//     return str;
+// }
+
+// string input_file(bool* flag_Esc)                   // Ввод названия файла с клавиатуры
+// {                                                   // Возвращает имя файла при корректном вводе
+//     wint_t ch;                                      // Либо пустую строку при нажатии Esc
+//     wchar_t filename[256];
+//     string str = "";
+
+//     while(true)
+//     {
+//         ch = getch();
+//         if (ch == 27)
+//         {
+//             str = "";
+//             *flag_Esc = true;
+//             break;
+//         }
+
+//         else if (ch == KEY_BACKSPACE || ch == 127) // Backspace
+//             continue;
+
+//         else if (ch == 10)
+//             break;
+
+//         else
+//         {   
+//             addch(ch);
+//             str += char(ch);
+//         }
+//     }
+//     return str;
+// }
+
+string choose_file_name_in222()                             // Обработка имени входного файла
+{                                                           // Возвращает имя файла при корректном вводе
+    string str;                                             // Либо пустую строку при выходе из режима
 
     clear();
-    printw("Для возврата в меню нажмите Esc\n");
-    printw("-------------------------------\n\n");
-    refresh();
-    noecho();
-    curs_set(1);            // включение курсора
+    curs_set(1);                        // выключение курсора
+    def_prog_mode();                    // Сохраняем режим ncurses
+    endwin();                           // Временно выключаем ncurses
+    system("clear");                    // Очищаем экран
+
+    printf("Для выхода в меню зажмите сочетание клавиш \"Esc\"+\"Enter\"\n");
+    printf("--------------------------------------------------------\n\n");
     
     bool file_exist = false;
     while(!file_exist)
     {
-        printw("Введите название файла: ");
-        refresh();
+        // printf("Введите название файла: ");
 
         bool flag_Esc = false;
-        str = input_file(&flag_Esc);
+        str = scan_file_name();             // Можно попробовать заменить getchar на scanf
+        // str = scan_file_name_222();
+
+        if (str == "")
+            break;
+        else 
+            str.erase(str.find("\n"));
+
         file_exist = file_checker(str);
 
-        if (flag_Esc == true)
-            break;
-
-        else if ((flag_Esc == false) && (file_exist == false))
+        if ((str != "") && (file_exist == false))
         {
-            printw("\nФайл с таким названием отсутствует\n\n");
-            refresh();
+            printf("Файл с таким названием отсутствует\n\n");
             continue;
         }
     }
 
-    endwin();
+    system("clear");
+    reset_prog_mode();      // Восстанавливаем режим ncurses
     curs_set(0);            // выключение курсора
-    return str;
-}
-
-string input_file(bool* flag_Esc)                   // Ввод названия файла с клавиатуры
-{                                                   // Возвращает имя файла при корректном вводе
-    wint_t ch;                                      // Либо пустую строку при нажатии Esc
-    wchar_t filename[256];
-    string str = "";
-
-    while(true)
-    {
-        ch = getch();
-        if (ch == 27)
-        {
-            str = "";
-            *flag_Esc = true;
-            break;
-        }
-
-        else if (ch == KEY_BACKSPACE || ch == 127) // Backspace
-            continue;
-
-        else if (ch == 10)
-            break;
-
-        else
-        {   
-            addch(ch);
-            str += char(ch);
-        }
-    }
+    refresh();
     return str;
 }
 
@@ -193,7 +236,8 @@ bool file_checker(string file_name)       // Функция проверки с�
 
 void Menu_for_sorting()
 {
-    string file_name = choose_file_name_in();
+    // string file_name = choose_file_name_in();            // ВАРИАНТ 1
+    string file_name = choose_file_name_in222();            // ВАРИАНТ 2
     if (file_name == "")
         return;                                             // Выход по Esc
 
@@ -418,96 +462,97 @@ void file_creator(columns* array, int SIZE, int type, string field_name, string 
     interface_for_file_creator(filename_out);
 }
 
-string choose_file_name_out()   //ВАРИАНТ 1                        // Обработка имени выходного файла
-{                                                       // Возвращает имя файла при корректном вводе
-    string str;                                         // Либо пустую строку при выходе из режима
+// string choose_file_name_out()   //ВАРИАНТ 1                        // Обработка имени выходного файла
+// {                                                       // Возвращает имя файла при корректном вводе
+//     string str;                                         // Либо пустую строку при выходе из режима
 
-    clear();
-    printw("Для возврата в меню нажмите Esc\n");
-    printw("-------------------------------\n\n");
-    refresh();
-    noecho();
-    curs_set(1);            // включение курсора
+//     clear();
+//     printw("Для возврата в меню нажмите Esc\n");
+//     printw("-------------------------------\n\n");
+//     refresh();
+//     noecho();
+//     curs_set(1);            // включение курсора
     
-    string elem = ".txt\n";
-    bool elem_exist = false;
-    bool flag_Esc = false;
-    while(!elem_exist)
-    {
-        printw("Введите название файла: ");
-        refresh();
+//     string elem = ".txt\n";
+//     bool elem_exist = false;
+//     bool flag_Esc = false;
+//     while(!elem_exist)
+//     {
+//         printw("Введите название файла: ");
+//         refresh();
 
-        str = input_file(&flag_Esc);
+//         str = input_file(&flag_Esc);
 
-        if (flag_Esc == true)
-            break;
+//         if (flag_Esc == true)
+//             break;
 
-        str += "\n";
-        if ((flag_Esc == false) && (str.find(elem) == -1))
-        {
-            printw("\nНазвание файла должно содержать расширение .txt\n\n");
-            refresh();
-            continue;
-        }
+//         str += "\n";
+//         if ((flag_Esc == false) && (str.find(elem) == -1))
+//         {
+//             printw("\nНазвание файла должно содержать расширение .txt\n\n");
+//             refresh();
+//             continue;
+//         }
 
-        else if (str.find(elem) != -1)
-            elem_exist = true;
-    }
-    if (elem_exist == true)
-        str.erase(str.find("\n"));
+//         else if (str.find(elem) != -1)
+//             elem_exist = true;
+//     }
+//     if (elem_exist == true)
+//         str.erase(str.find("\n"));
 
-    endwin();
-    curs_set(0);            // выключение курсора
-    return str;
-}
+//     endwin();
+//     curs_set(0);            // выключение курсора
+//     return str;
+// }
 
-string choose_file_name_out222()    // ВАРИАНТ 2
-{
-    string file_name;
-    clear();
-    curs_set(1);                        // выключение курсора
-    def_prog_mode();                    // Сохраняем режим ncurses
-    endwin();                           // Временно выключаем ncurses
-    system("clear");                    // Очищаем экран
+// string choose_file_name_out222()    // ВАРИАНТ 2                // Возвращает введенное имя файла, если оно корректно
+// {                                                               // при выходе в меню возвращает пустую строку ""
+//     string file_name;
+//     clear();
+//     curs_set(1);                        // выключение курсора
+//     def_prog_mode();                    // Сохраняем режим ncurses
+//     endwin();                           // Временно выключаем ncurses
+//     system("clear");                    // Очищаем экран
 
-    printf("Для выхода в меню зажмите сочетание клавиш \"Esc\"+\"Enter\"\n");
-    printf("--------------------------------------------------------\n\n");
+//     printf("Для выхода в меню зажмите сочетание клавиш \"Esc\"+\"Enter\"\n");
+//     printf("--------------------------------------------------------\n\n");
 
-    string elem = ".txt\n";
-    bool elem_exist = false;
-    while(!elem_exist)
-    {
-        printf("Введите название файла: ");
+//     string elem = ".txt\n";
+//     bool elem_exist = false;
+//     while(!elem_exist)
+//     {
+//         printf("Введите название файла: ");
 
-        file_name = scan_file_name();
+//         file_name = scan_file_name();
 
-        if (file_name == "")            // Выход по Esc
-            break;
+//         if (file_name == "")            // Выход по Esc
+//             break;
 
-        if (file_name.find(elem) == -1)
-        {
-            printf("\nНазвание файла должно содержать расширение .txt\n\n");
-            continue;
-        }
+//         if (file_name.find(elem) == -1)
+//         {
+//             printf("Название файла должно содержать расширение .txt\n\n");
+//             continue;
+//         }
 
-        else if (file_name.find(elem) != -1)
-            elem_exist = true;
-    }
-    if (elem_exist == true)
-        file_name.erase(file_name.find("\n"));    
+//         else if (file_name.find(elem) != -1)
+//             elem_exist = true;
+//     }
+//     if (elem_exist == true)
+//         file_name.erase(file_name.find("\n"));    
 
-    system("clear");
-    reset_prog_mode();      // Восстанавливаем режим ncurses
-    curs_set(0);            // выключение курсора
-    refresh();
-    return file_name;
-}
+//     system("clear");
+//     reset_prog_mode();      // Восстанавливаем режим ncurses
+//     curs_set(0);            // выключение курсора
+//     refresh();
+//     return file_name;
+// }
 
 string scan_file_name()    // Функция, считывающая марку ЭВМ с консоли 
 {                                                            
     while(true)                                                 
     {    
-        const int SIZE = 30;
+        printf("Введите название файла: ");
+        const int SIZE = 100;
         
         bool error_flag = false; 
         string checker = "";
@@ -527,13 +572,6 @@ string scan_file_name()    // Функция, считывающая марку 
 
         if (find_esc(checker) == 0)         // Проверка на принудительный выход по Esc
             return "";
-
-        if (symb(local_mark) == 0)      // Проверка на корректность символов
-        {
-            printf("Ошибка ввода! Недопустимые символы!\n");
-            continue;
-        }
-
         if ((local_mark[0] == '\n') || (local_mark[0] == ' '))      // Проверка на пустую строку
         {
             printf("Ошибка ввода! Введена пустая строка!\n");
@@ -543,6 +581,21 @@ string scan_file_name()    // Функция, считывающая марку 
             return local_mark;
     }
 }
+
+// string scan_file_name_222()    // Функция, считывающая марку ЭВМ с консоли 
+// {                                                            
+//     while(true)                                                 
+//     {     
+//         string checker = "";
+//         getline(cin, checker);
+//         checker+="\n";
+
+//         if (find_esc(checker) == 0)         // Проверка на принудительный выход по Esc
+//             return "";
+//         else
+//             return checker;
+//     }
+// }
 
 int symb(string cathedra)      // Функция проверки символов поля "Кафедра"
 {                                       // Возвращает 1, если введены корректные символы. Иначе 0

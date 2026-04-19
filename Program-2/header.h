@@ -1,26 +1,26 @@
 #include <iostream>
-#include <cstdlib>
-#include <ncurses.h>
+#include <cstdlib>          // Для использования некоторых системных функций: system(), exit()
+#include <ncurses.h>        // Для реализации интерактивного меню
 #include <string>
 #include <fstream>
-#include <unistd.h>
-#include <limits.h>
-#include <iomanip>
+#include <unistd.h>         /////
+#include <limits.h>         // Для константы максимальной длины пути
+#include <iomanip>          // Для вывода информации в табличном виде
 
 using namespace std;
 
-struct cathedra_counts;
-struct data_from_file;
+struct cathedra_counts;     // Структура для подсчета уникальных значений кафедр
+struct data_from_file;      // Структура полей рабочих файлов
 
-void interface(int choice);
-void Menu(char* argv[]);
-void Help();
-void file_checker(bool* file_ECM_exist, bool* file_ECM_CONF_exist);
-void files_info(bool* files_ECM_exist, bool* file_ECM_CONF_exist, char* argv[]);
-void files_is_found();
-void Menu_for_viewing(bool* files_ECM_exist, bool* file_ECM_CONF_exist);
-void interface_for_viewing(int choice);
+void Menu(char* argv[]);        // Главное меню программы
+void interface(int choice);     // Отрисовка интерфейса главного меню программы
+void Help();                    // Функция работы пункта меню "Помощь"
+void file_checker(bool* file_ECM_exist, bool* file_ECM_CONF_exist);     // Функция проверки существования рабочих файлов программы
+void files_info(bool* files_ECM_exist, bool* file_ECM_CONF_exist, char* argv[]);        // Функция вывода информации о наличии/отсутствии рабочих файлов
+void files_is_found();          // Функция вывода описания рабочих файлов программы
 
+void Menu_for_viewing(bool* files_ECM_exist, bool* file_ECM_CONF_exist);        // Функция работы пункта меню "Просмотр записей"
+void interface_for_viewing(int choice);     // Функция отрисовки интерфейса для пункта меню "Просмотр записей"
 void file_viewer_to_screen();               // Режим вывода данных на экран
 int string_counter(string file_name);        // Функция подсчета строк в файле
 bool files_warning(int counter, string filename);            // Предупреждение при ошибке чтения файла
