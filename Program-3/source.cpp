@@ -191,8 +191,8 @@ string choose_file_name_in222()                             // Обработк�
     printf("Для выхода в меню зажмите сочетание клавиш \"Esc\"+\"Enter\"\n");
     printf("--------------------------------------------------------\n\n");
     
-    bool file_exist = false;
-    while(!file_exist)
+    int file_exist = 1;
+    while(file_exist != 0)
     {
         // printf("Введите название файла: ");
 
@@ -205,13 +205,27 @@ string choose_file_name_in222()                             // Обработк�
         else 
             str.erase(str.find("\n"));
 
+        if (str.find(".txt") == -1)
+            str.append(".txt");
+
         file_exist = file_checker(str);
 
-        if ((str != "") && (file_exist == false))
+        if (file_exist == 1)
         {
             printf("Файл с таким названием отсутствует\n\n");
             continue;
         }
+        else if (file_exist == 2)
+        {
+            printf("Ошибка! Выбранный файл пуст!\n\n");
+            continue;
+        }
+        else if (file_exist == 3)
+        {
+            printf("Ошибка! Структура записей файла не подходит для работы!\n\n");
+            continue;
+        }
+        //// Иначе проверка на структуру
     }
 
     system("clear");
@@ -221,16 +235,36 @@ string choose_file_name_in222()                             // Обработк�
     return str;
 }
 
-bool file_checker(string file_name)       // Функция проверки существования рабочего файла программы
-{                                         // Возвращает false, если файл с таким именем отсутствует
-    ifstream file;                        // И true, если файл был найден
-    file.open(file_name);
-    if (!file.is_open())
-        return false;
+int file_checker(string file_name)       // Функция проверки существования рабочего файла программы
+{                                         // Возвращает 1, если файл с таким именем отсутствует
+    ifstream file;                        // 2, если файл пуст
+    file.open(file_name);                 // 3, если файл содержит неправильную структуру записей
+    if (!file.is_open())                  // 0, если файл полностью корректен
+        return 1;
     else
     {
-        file.close();
-        return true;
+        string str;
+        getline(file, str);
+        if (str == "")
+            return 2;
+
+        string first_str[5] = {"Марка ЭВМ", "Заводской номер", "Кол-во терминалов", "Кол-во ВЗУ", "Кафедра"};
+        string template_str = first_str[0].append(10, ' ').append(first_str[1]).append(10, ' ')
+                            .append(first_str[2]).append(10, ' ').append(first_str[3]).append(10, ' ')
+                            .append(first_str[4]).append(15, ' ');
+        if (str != template_str)
+        {
+            file.close();
+            return 3;
+        }
+        else
+        {
+            getline(file, str);     // Проверка следующей строки
+            if (str == "")
+                return 2;
+            else 
+                return 0;
+        } 
     }
 }
 
@@ -574,7 +608,7 @@ string scan_file_name()    // Функция, считывающая марку 
             return "";
         if ((local_mark[0] == '\n') || (local_mark[0] == ' '))      // Проверка на пустую строку
         {
-            printf("Ошибка ввода! Введена пустая строка!\n");
+            printf("Ошибка ввода! Введена пустая строка!\n\n");
             continue;
         }
         else

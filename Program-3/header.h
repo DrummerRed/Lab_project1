@@ -23,7 +23,7 @@ string choose_file_name_in();
 string choose_file_name_in222();            //2 версия
 string input_file(bool* flag_Esc);
 //string get_filename();
-bool file_checker(string filename);       // Функция проверки существования рабочего файла программы
+int file_checker(string filename);       // Функция проверки существования рабочего файла программы
 int file_parser(columns* array, int SIZE, string file_name);
 int string_counter(string file_name);
 void convert_to_numb(columns* array, int len);
