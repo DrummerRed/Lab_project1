@@ -9,7 +9,6 @@ struct columns
     string column_name;
     string* ptr = nullptr;
     int* i_ptr = nullptr;
-    // int field_length = 0;       ////////
 };
 
 void Menu(char* argv[])         // Главное меню программы
@@ -49,7 +48,12 @@ void Menu(char* argv[])         // Главное меню программы
             }
             if (switcher == 2)
             {
-                Menu_for_sorting();
+                int flag;
+                do
+                {
+                    flag = Menu_for_sorting();
+                }
+                while(flag == 0);
             }
             if (switcher == 3)
             {
@@ -268,19 +272,20 @@ int file_checker(string file_name)       // Функция проверки су
     }
 }
 
-void Menu_for_sorting()
+int Menu_for_sorting()                                      // Меню процесса сортировки. Возвращает 0 при успешном завершении. Возвращает 1 при выходе по Esc
 {
     // string file_name = choose_file_name_in();            // ВАРИАНТ 1
     string file_name = choose_file_name_in222();            // ВАРИАНТ 2
     if (file_name == "")
-        return;                                             // Выход по Esc
+        return 1;                                           // Выход по Esc
 
     columns* array = new columns[FIELDS];
     int flag = file_parser(array, FIELDS, file_name);       // Считывание полей файла
     if (flag == -1)
     {
         printw("Ошибка чтения файла!");
-        return;
+        sleep(2);
+        return 1;
     }
 
     int len = string_counter(file_name)-1;
@@ -288,13 +293,13 @@ void Menu_for_sorting()
 
     int field = choose_field(array, FIELDS);                // Выбор поля для сортировки
     if (field == -1)
-        return;                                             // Выход по Esc
+        return 1;                                           // Выход по Esc
 
     string field_name = array[field].column_name;
 
     int type = type_sort();                                 // выбор типа сортировки (убывание/возрастание)
     if (type == -1)
-        return;                                             // Выход по Esc
+        return 1;                                           // Выход по Esc
 
     regroup_array(field, array, FIELDS);
 
@@ -304,6 +309,8 @@ void Menu_for_sorting()
     file_creator(array, FIELDS, type, field_name, file_name);
 
     free_memory(array, FIELDS);
+
+    return 0;
 }
 
 int file_parser(columns* array, int SIZE, string file_name)         // Возвращает 1, если парсинг файла удался
@@ -483,6 +490,7 @@ void file_creator(columns* array, int SIZE, int type, string field_name, string 
     string filename_out = file_name;                                        // ВАРИАНТ 3
     filename_out.erase(filename_out.find(".txt"), 4);                          
     filename_out += "-отсортированный.txt";
+    filename_out = output_file_checker(filename_out);
 
     if (filename_out == "")
         return;                                 // Выход по Esc
@@ -494,6 +502,37 @@ void file_creator(columns* array, int SIZE, int type, string field_name, string 
         reverse_record(array, count, SIZE, field_name, filename_out);
 
     interface_for_file_creator(filename_out);
+}
+
+string output_file_checker(string file_name)                    // Проверка названия выходного файла
+{
+    static int i = 1;
+    ifstream file;
+    file.open(file_name);
+    if (!file.is_open())                                // Если файл с таким именем не найден
+    {
+        i = 1;
+        return file_name;
+    }
+    else
+    {
+        file.close();
+
+        // static int i = 1;
+        i++;
+        string tmp = "_(";
+        tmp.append(to_string(i-1)).append(")");
+
+        file_name.erase(file_name.find(".txt"), 4);
+        if (file_name.find(tmp) != -1)
+            file_name.erase(file_name.find(tmp), tmp.length());
+        
+        file_name += "_(";
+        file_name += to_string(i);
+        file_name += ").txt";
+
+        return output_file_checker(file_name);
+    }
 }
 
 // string choose_file_name_out()   //ВАРИАНТ 1                        // Обработка имени выходного файла

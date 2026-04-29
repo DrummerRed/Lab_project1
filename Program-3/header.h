@@ -18,7 +18,7 @@ void interface(int choice);     // Отрисовка интерфейса гл�
 
 void Help();                    // Функция работы пункта меню "Помощь"
 
-void Menu_for_sorting();
+int Menu_for_sorting();
 string choose_file_name_in();
 string choose_file_name_in222();            //2 версия
 string input_file(bool* flag_Esc);
@@ -49,6 +49,7 @@ int partition_int(columns array[], int low, int high, int pivot);          // Д
 void quicksort(columns array[], int low, int high);
 
 void file_creator(columns* array, int SIZE, int type, string field_name, string file_name);                     // Вывод в файл
+string output_file_checker(string file_name);                               // Проверка названия выходного файла
 void interface_for_file_creator(string filename);
 void add_whitespace(columns* array, string file_name);              // Добавляет к каждой строке пробелы для табличного вывода в файл
 bool cathedra_checker(string cathedra);
