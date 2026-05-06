@@ -1,0 +1,71 @@
+Марка ЭВМ          Заводской номер          Кол-во терминалов          Кол-во ВЗУ          Кафедра               
+Apple-PC           X658GHC                  14                         Нет данных          707Б              
+Apple MacBook Pro  ABD689HG3497HJ645        Нет данных                 10                  802                
+Asus-PC            RFGD356HJKL              5                          5                   303                
+Asus VivoBook      ABC123XYZ                Нет данных                 Нет данных          703                
+HUAWEI MateBook    Нет данных               8                          0                   703                
+Apple2-PC          787HGK08D                7                          Нет данных          301                
+Apple MacBook Pro  Нет данных               Нет данных                 10                  301                
+HP Pavilion        G565H424                 3                          15                  701                
+Asus-PC            DFAO4R8                  5                          5                   701                
+Acer Aspire        G25H424                  Нет данных                 Нет данных          701                
+Apple MacBook Pro  H742K315                 8                          2                   903                
+Asus-PC            B931P208                 2                          7                   302А               
+Asus Vivobook      L823QRT                  7                          6                   805                
+HUAWEI MateBook    H742K315                 12                         1                   302                
+Apple2-PC          P346C134                 6                          Нет данных          901Б               
+HP Pavilion        FGH345VB9012CB789        1                          9                   401                
+Acer Aspire        PLKD789MNBVC             1                          5                   605                
+Dell XPS           Нет данных               2                          11                  408                
+Lenovo ThinkPad    WER234GH5678MN890        5                          2                   102                
+Apple MacBook Air  RST7890U                 8                          3                   804                
+Lenovo ThinkPad    P9X3K2M                  Нет данных                 3                   801                
+Dell XPS           J8H2D5F7G9               9                          15                  601                
+Apple MacBook Pro  RT45HG89                 4                          8                   707Б               
+Asus ROG           A1B2C3D4E5F6             8                          0                   201                
+HP Envy            K9L83M                   3                          12                  805                
+Acer Swift         X9759Y                   2                          1                   703                
+MSI Stealth        WER234BNM                12                         7                   901Б               
+Apple iMac         HJK789TYU                7                          2                   405                
+Samsung G Book     Нет данных               4                          Нет данных          405                
+Honor MagicBook    M6N7B8                   10                         6                   505                
+Dell Latitude      ZXC123ASD                Нет данных                 0                   704                
+Apple MacBook Air  968PFNUW89               3                          2                   908                
+Asus TUF           G7H8J9K0                 18                         11                  302                
+HP Spectre         PLM456QWE                9                          15                  906                
+Acer Predator      41OCJ78VC                20                         5                   204                
+MSI Modern         R3T4Y5U6                 1                          Нет данных          209                
+Apple Mac Pro      LKI789UY                 3                          7                   710                
+Xiaomi Mi Notebook 8723KFO9                 4                          5                   307                
+Huawei MateBook D  BVCXZ12                  1                          1                   904А               
+Lenovo Legion      65KL6A                   8                          17                  403                
+Dell Inspiron      N8H9U0                   19                         8                   802                
+Apple MacBook      TYU123FGH                10                         0                   709                
+Asus ZenBook       473HGUN80                8                          13                  206                
+HP Omen            QAZWSX5                  9                          3                   607Б               
+Acer Aspire        MNB678VFR                4                          1                   104                
+MSI GF Series      129MVIDJ                 Нет данных                 5                   703                
+Apple Mac Mini     P0O9I8U7                 7                          0                   102                
+Samsung Notebook   JKL012MNOVH42            1                          7                   305                
+Honor Book         RTY456UIO                17                         9                   806                
+Lenovo IdeaPad     889CB2NCHI12             6                          14                  307                
+Dell Precision     CVR789TGB                Нет данных                 15                  106                
+Apple MacBook Pro  501HJFU87                8                          0                   505                
+Asus VivoBook      FDS456GHJ                3                          11                  207                
+HP Pavilion        POI987YTR                10                         6                   204                
+Acer Nitro         8FBGHHB2                 7                          9                   907                
+MSI Titan          2SGJS3NJU8               1                          1                   107                
+Apple Mac Studio   9GBW885S1                5                          4                   705                
+Xiaomi RedmiBook   LKM852XCV                9                          16                  904А               
+Huawei MateBook    BGT543EDC                2                          9                   409                
+Lenovo ThinkBook   78FH2KO                  2                          7                   707Б               
+Xiaomi Book S      Нет данных               2                          Нет данных          303                
+Huawei MateBook 1  RST369UIO                10                         8                   710                
+Acer Enduro        VGH147BGT                7                          11                  602                
+Dell OptiPlex      39DO3H                   1                          12                  408                
+Apple Mac Pro 2    JKL357PLM                3                          4                   309                
+Asus ROG Zephyrus  QSC951TYU                1                          7                   310                
+HP Victus          84HFB1SZ                 5                          5                   108                
+Acer ConceptD      PLM246QWE                4                          9                   807                
+MSI Raider         XRF135CVB                8                          3                   401                
+Dell Alienware     HJM8862LOP               7                          18                  109                
